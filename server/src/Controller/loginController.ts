@@ -42,6 +42,7 @@ export const LoginUser = async (req: Request, res: Response)=>{
                 return(
                     res.send({
                         status: "Login_successfully",
+                        data: checkPasswordExist
                     })
                 )
             }else{

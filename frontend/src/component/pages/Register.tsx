@@ -5,6 +5,7 @@ import loginPic from '../images/4609476.jpg'
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
+
 export const Register: React.FC = () => {
 
     const [name, setName] = useState('');

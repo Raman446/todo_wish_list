@@ -3,13 +3,16 @@ import { TextField, Box, Button, Typography, Grid, Stack } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import loginPic from '../images/4609476.jpg'
 import { toast } from "react-toastify";
+import { login } from "../store/slices/LoginSlice";
+import { useDispatch } from "react-redux";
 
 export const Login: React.FC = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const navigate = useNavigate()
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const gotoRegister = () => {
         navigate(`/register`);
     }
@@ -30,7 +33,7 @@ export const Login: React.FC = () => {
             }).then(async (res) => {
                 let result = await res.json();
 
-                console.log("ress", result)
+                console.log("ress", result.data)
 
                 // toast.error("qwertyuio")
                 if (result.status === "not_registered_email") {
@@ -39,6 +42,7 @@ export const Login: React.FC = () => {
                     toast.error("invalid password");
                 }
                 else if (result.status === "Login_successfully") {
+                    dispatch(login(result.data));
                     toast.success("Login Successfully");
                     navigate(`/todo`);
                 }

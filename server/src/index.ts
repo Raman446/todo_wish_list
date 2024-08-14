@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import { AuthUser } from './Routes/loginRoute';
+import { AuthTask } from './Routes/taskRoute';
 
 
 const app = express();
@@ -22,3 +23,4 @@ console.log(`Server is running at ${port} port....`)
 })
 
 app.use('/', AuthUser);
+app.use('/todo', AuthTask);
