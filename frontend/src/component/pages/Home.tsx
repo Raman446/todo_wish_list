@@ -13,8 +13,10 @@ import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { toast } from "react-toastify";
-import Draggable from "react-draggable";
+// import Draggable from "react-draggable";
+// import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 // import { Draggable, Droppable } from 'react-drag-and-drop';
 
 
@@ -127,9 +129,57 @@ export const Home: React.FC = () => {
 
     }
 
+    const onDragEnd = (result: DropResult) => {
+        console.log("resut: ", result)
+        const { source, destination, draggableId } = result;
+        if (!destination) {
+            return;
+          }
+      
+          if (
+            destination.droppableId === source.droppableId &&
+            destination.index === source.index
+          ) {
+            return;
+          }
+
+
+
+
+
+       
+        let data = {
+            destination: destination?.droppableId,
+            task_id: draggableId
+        }
+        try {
+            const response = fetch("http://localhost:8000/todo/update-todo", {
+                method: "POST", // or 'PUT'
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data)
+            }).then(async (res) => {
+                let result = await res.json();
+
+                console.log("eeee", result.data)
+
+                if (result.status === "status_changed") {
+                    toast.info("Status of Task changed Successfully");
+                }
+            });
+
+        } catch (err) {
+            console.error("Error:", err);
+        }
+
+    }
+
     useEffect(() => {
         getTodo();
-    }, [handleAddTodo, handleDeletetask]);
+    }, [
+        handleAddTodo, handleDeletetask, onDragEnd
+    ]);
 
     const getTodo = () => {
         let data = {
@@ -159,9 +209,7 @@ export const Home: React.FC = () => {
     }
 
 
-    const move =()=>{
-        console.log("stop")
-    }
+
 
 
 
@@ -298,143 +346,194 @@ export const Home: React.FC = () => {
                     Yours TODO wish list....
                 </Typography>
 
-                <Grid container spacing={3} sx={{
-                    marginTop: '30px',
-                }}>
-                    <Grid item md={4} sx={{
-                        // border: '1px solid rgb(213, 213, 213)',
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Grid container spacing={0} sx={{
+                        marginTop: '30px',
+                        display: 'flex'
                     }}>
-                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Todo</Typography>
 
-                        {taskList.map((task, index) => {
-                            if (task.status == "todo")
+                        <Droppable key={''} droppableId='todo' >
+                            {(provided) => {
+                                console.log('Droppable rendered with ID: todo');
                                 return (
-                                    <Draggable onStop={move}>
-                                        <Box sx={{
-                                            border: '1px solid rgb(213, 213, 213)',
-                                            maxWidth: '90%',
-                                            borderRadius: '10px',
-                                            marginBottom: "12px",
-                                            boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-                                        }}>
+                                    <Grid
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
+                                        item md={4}>
+                                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Todo</Typography>
 
-                                            <Typography variant="h6" sx={{
-                                                marginLeft: '10px',
-                                                textDecorationLine: "underline"
-                                            }}>{task.todoHeading}</Typography>
-                                            <Typography variant="body2" sx={{
-                                                marginLeft: '10px',
-                                                marginRight: '9px'
-                                            }}>{task.todoDetail}</Typography>
-                                            <Typography variant="body1" sx={{
-                                                marginLeft: '10px',
-                                            }}>Completing Date of Todo: {task.endingdate}</Typography>
-                                            <Typography variant="body1" sx={{
-                                                border: '1px solid rgb(213, 213, 213)',
-                                                margin: '10px',
-                                                borderRadius: '10px',
-                                                display: "inline-block",
-                                                padding: '4px 6px',
-                                                backgroundColor: 'rgb(239, 63, 50)',
-                                                textAlign: 'right',
-                                                cursor: "pointer"
-                                            }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                        </Box>
-                                    </Draggable>
+                                        {taskList?.map((task, index) => {
+                                            if (task.status == 'todo')
+                                                return (
+                                                    <Draggable key={task._id} draggableId={task._id.toString()} index={index}>
+                                                        {(provided) => (
+                                                            <Box
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}
+                                                                ref={provided.innerRef}
+                                                                sx={{
+                                                                    border: '1px solid rgb(213, 213, 213)',
+                                                                    maxWidth: '90%',
+                                                                    borderRadius: '10px',
+                                                                    marginBottom: "12px",
+                                                                    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+                                                                }}>
+
+                                                                <Typography variant="h6" sx={{
+                                                                    marginLeft: '10px',
+                                                                    textDecorationLine: "underline"
+                                                                }}>{task.todoHeading}</Typography>
+                                                                <Typography variant="body2" sx={{
+                                                                    marginLeft: '10px',
+                                                                    marginRight: '9px'
+                                                                }}>{task.todoDetail}</Typography>
+                                                                <Typography variant="body1" sx={{
+                                                                    marginLeft: '10px',
+                                                                }}>Completing Date of Todo: {task.endingdate}</Typography>
+                                                                <Typography variant="body1" sx={{
+                                                                    border: '1px solid rgb(213, 213, 213)',
+                                                                    margin: '10px',
+                                                                    borderRadius: '10px',
+                                                                    display: "inline-block",
+                                                                    padding: '4px 6px',
+                                                                    backgroundColor: 'rgb(239, 63, 50)',
+                                                                    textAlign: 'right',
+                                                                    cursor: "pointer"
+                                                                }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                            </Box>
+                                                        )}
+
+                                                    </Draggable>
+                                                )
+                                        })}
+                                        {provided.placeholder}
+                                    </Grid>
                                 )
-                        })}
+                            }}
 
+                        </Droppable>
+
+                        <Droppable key={''} droppableId='in_progress' >
+                            {(provided) => (
+                                <Grid ref={provided.innerRef} {...provided.droppableProps} item md={4} sx={{
+                                    //  backgroundColor: "rgb(185, 242, 142)"
+                                    // border: '1px solid rgb(213, 213, 213)'
+                                }}>
+                                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>In-progress</Typography>
+
+
+                                    {taskList?.map((task, index) => {
+                                        if (task.status == "in_progress")
+                                            return (
+                                                <Draggable draggableId={task._id} index={index}>
+                                                    {(provided) => (
+                                                        <Box
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            ref={provided.innerRef}
+                                                            sx={{
+                                                                border: '1px solid rgb(213, 213, 213)',
+                                                                maxWidth: '90%',
+                                                                borderRadius: '10px',
+                                                                marginBottom: "12px",
+                                                                boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+                                                            }}>
+
+                                                            <Typography variant="h6" sx={{
+                                                                marginLeft: '10px',
+                                                                textDecorationLine: "underline"
+                                                            }}>{task.todoHeading}</Typography>
+                                                            <Typography variant="body2" sx={{
+                                                                marginLeft: '10px',
+                                                                marginRight: '9px'
+                                                            }}>{task.todoDetail}</Typography>
+                                                            <Typography variant="body1" sx={{
+                                                                marginLeft: '10px',
+                                                            }}>Completing Date of Todo: {task.endingdate}</Typography>
+                                                            <Typography variant="body1" sx={{
+                                                                border: '1px solid rgb(213, 213, 213)',
+                                                                margin: '10px',
+                                                                borderRadius: '10px',
+                                                                display: "inline-block",
+                                                                padding: '4px 6px',
+                                                                backgroundColor: 'rgb(239, 63, 50)',
+                                                                textAlign: 'right',
+                                                                cursor: "pointer"
+                                                            }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                        </Box>
+                                                    )}
+
+                                                </Draggable>
+                                            )
+                                    })}
+                                    {provided.placeholder}
+
+                                </Grid>
+                            )}
+
+                        </Droppable>
+
+
+                        <Droppable key={''} droppableId="completed" >
+                            {(provided) => (
+                                <Grid ref={provided.innerRef} {...provided.droppableProps} item md={4} sx={{
+                                    // border: '1px solid rgb(213, 213, 213)'
+                                }}>
+                                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Completed</Typography>
+
+
+                                    {taskList?.map((task, index) => {
+                                        if (task.status == "completed")
+                                            return (
+                                                <Draggable draggableId={task._id} index={index}>
+                                                    {(provided) => (
+                                                        <Box
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            ref={provided.innerRef}
+                                                            sx={{
+                                                                border: '1px solid rgb(213, 213, 213)',
+                                                                maxWidth: '90%',
+                                                                borderRadius: '10px',
+                                                                marginBottom: "12px",
+                                                                boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+                                                            }}>
+
+                                                            <Typography variant="h6" sx={{
+                                                                marginLeft: '10px',
+                                                                textDecorationLine: "underline"
+                                                            }}>{task.todoHeading}</Typography>
+                                                            <Typography variant="body2" sx={{
+                                                                marginLeft: '10px',
+                                                                marginRight: '9px'
+                                                            }}>{task.todoDetail}</Typography>
+                                                            <Typography variant="body1" sx={{
+                                                                marginLeft: '10px',
+                                                            }}>Completing Date of Todo: {task.endingdate}</Typography>
+                                                            <Typography variant="body1" sx={{
+                                                                border: '1px solid rgb(213, 213, 213)',
+                                                                margin: '10px',
+                                                                borderRadius: '10px',
+                                                                display: "inline-block",
+                                                                padding: '4px 6px',
+                                                                backgroundColor: 'rgb(239, 63, 50)',
+                                                                textAlign: 'right',
+                                                                cursor: "pointer"
+                                                            }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                        </Box>
+                                                    )}
+                                                </Draggable>
+                                            )
+                                    })}
+
+                                    {provided.placeholder}
+                                </Grid>
+                            )}
+
+                        </Droppable>
 
                     </Grid>
-                    <Grid item md={4} sx={{
-                        // border: '1px solid rgb(213, 213, 213)'
-                    }}>
-                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>In-progress</Typography>
-
-
-                        {taskList.map((task, index) => {
-                            if (task.status == "in_progress")
-                                return (
-                                    <Box sx={{
-                                        border: '1px solid rgb(213, 213, 213)',
-                                        maxWidth: '90%',
-                                        borderRadius: '10px',
-                                        marginBottom: "12px",
-                                        boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-                                    }}>
-
-                                        <Typography variant="h6" sx={{
-                                            marginLeft: '10px',
-                                            textDecorationLine: "underline"
-                                        }}>{task.todoHeading}</Typography>
-                                        <Typography variant="body2" sx={{
-                                            marginLeft: '10px',
-                                            marginRight: '9px'
-                                        }}>{task.todoDetail}</Typography>
-                                        <Typography variant="body1" sx={{
-                                            marginLeft: '10px',
-                                        }}>Completing Date of Todo: {task.endingdate}</Typography>
-                                        <Typography variant="body1" sx={{
-                                            border: '1px solid rgb(213, 213, 213)',
-                                            margin: '10px',
-                                            borderRadius: '10px',
-                                            display: "inline-block",
-                                            padding: '4px 6px',
-                                            backgroundColor: 'rgb(239, 63, 50)',
-                                            textAlign: 'right',
-                                            cursor: "pointer"
-                                        }}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                    </Box>
-                                )
-                        })}
-
-
-                    </Grid>
-                    <Grid item md={4} sx={{
-                        // border: '1px solid rgb(213, 213, 213)'
-                    }}>
-                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Completed</Typography>
-
-
-                        {taskList.map((task, index) => {
-                            if (task.status == "completed")
-                                return (
-                                    <Box sx={{
-                                        border: '1px solid rgb(213, 213, 213)',
-                                        maxWidth: '90%',
-                                        borderRadius: '10px',
-                                        marginBottom: "12px",
-                                        boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-                                    }}>
-
-                                        <Typography variant="h6" sx={{
-                                            marginLeft: '10px',
-                                            textDecorationLine: "underline"
-                                        }}>{task.todoHeading}</Typography>
-                                        <Typography variant="body2" sx={{
-                                            marginLeft: '10px',
-                                            marginRight: '9px'
-                                        }}>{task.todoDetail}</Typography>
-                                        <Typography variant="body1" sx={{
-                                            marginLeft: '10px',
-                                        }}>Completing Date of Todo: {task.endingdate}</Typography>
-                                        <Typography variant="body1" sx={{
-                                            border: '1px solid rgb(213, 213, 213)',
-                                            margin: '10px',
-                                            borderRadius: '10px',
-                                            display: "inline-block",
-                                            padding: '4px 6px',
-                                            backgroundColor: 'rgb(239, 63, 50)',
-                                            textAlign: 'right',
-                                            cursor: "pointer"
-                                        }}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                    </Box>
-                                )
-                        })}
-
-
-                    </Grid>
-                </Grid>
+                </DragDropContext>
             </Box>
 
         </>

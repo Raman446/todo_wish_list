@@ -69,3 +69,24 @@ export const deleteTodo =async (req: Request, res:Response)=>{
         })
     }
 }
+
+
+export const updateTodo = async (req: Request, res: Response)=>{
+    console.log("bbbbb", req.body)
+    try{
+        const updateTodo =await Tasks.findOneAndUpdate({_id: req.body.task_id}, {$set: {status: req.body.destination}});
+        console.log("nnnnn", updateTodo)
+        if(updateTodo){
+            return(
+                res.send({
+                    status: "status_changed",
+                })
+            )
+        }
+    }catch(err){
+        res.send({
+            error: err
+        })
+    }
+
+}
