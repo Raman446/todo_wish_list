@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
-import { Typography, Box, AppBar, Toolbar, Button, Grid, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, FormControl, TextField } from "@mui/material";
+import { Typography, Box, AppBar, Toolbar, Button, Grid, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, FormControl, TextField, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { Controller, SubmitHandler, useFieldArray, useForm } from 'react-hook-form'
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { toast } from "react-toastify";
 // import Draggable from "react-draggable";
 // import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
@@ -25,7 +26,8 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautif
 interface taskData {
     taskHeading: string,
     taskDetail: string,
-    endingDate: string
+    endingDate: string,
+    UserId: string
 }
 
 export const Home: React.FC = () => {
@@ -34,6 +36,11 @@ export const Home: React.FC = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [userList, setUsers] = useState([{
+        userName: "",
+        _id: ""
+    }])
+    const [selectedValue, setSelectedvalue] = useState('');
     const [open, setOpen] = useState(false);
     const [taskList, setTaskList] = useState([{
         todoHeading: "",
@@ -65,14 +72,15 @@ export const Home: React.FC = () => {
             defaultValues: {
                 taskHeading: "",
                 taskDetail: "",
-                endingDate: ""
+                endingDate: "",
+                UserId: ""
             }
         }
     )
 
     const handleAddTodo: SubmitHandler<taskData> = (data) => {
         let dataa = {
-            user_id: user._id,
+            user_id: data.UserId, //now here value come from form
             heading: data.taskHeading,
             detail: data.taskDetail,
             date: data.endingDate,
@@ -94,12 +102,13 @@ export const Home: React.FC = () => {
                     toast.success("Successfully add todo task");
                     reset();
                     setOpen(false);
+                    getAllTodo();
                 }
             });
         } catch (error) {
             console.error("Error:", error);
         }
-    }
+    };
 
 
     const handleDeletetask = (id: string) => {
@@ -121,33 +130,33 @@ export const Home: React.FC = () => {
 
                 if (result.status === "delete_todo") {
                     toast.error("Task deleted succussfully");
+                    if (user.type === "admin") {
+                        getAllTodo();
+                    } else {
+                        getTodo();
+                    }
                 }
             });
         } catch (error) {
             console.error("Error:", error);
         }
 
-    }
+    };
 
     const onDragEnd = (result: DropResult) => {
         console.log("resut: ", result)
         const { source, destination, draggableId } = result;
         if (!destination) {
             return;
-          }
-      
-          if (
+        }
+
+        if (
             destination.droppableId === source.droppableId &&
             destination.index === source.index
-          ) {
+        ) {
             return;
-          }
+        }
 
-
-
-
-
-       
         let data = {
             destination: destination?.droppableId,
             task_id: draggableId
@@ -166,6 +175,7 @@ export const Home: React.FC = () => {
 
                 if (result.status === "status_changed") {
                     toast.info("Status of Task changed Successfully");
+                    getTodo();
                 }
             });
 
@@ -173,12 +183,56 @@ export const Home: React.FC = () => {
             console.error("Error:", err);
         }
 
+    };
+
+
+    const handleChange = (e: SelectChangeEvent) => {
+        const newValue = e.target.value as string;
+        setSelectedvalue((prevState) => {
+            console.log('Previous State:', prevState);
+            console.log('New Value:', newValue);
+            return newValue;
+        });
+        if (newValue === "all") {
+            getAllTodo();
+        } else {
+            console.log("wwwwwwwww", newValue)
+            let data = {
+                userid: newValue
+            }
+            try {
+                const response = fetch("http://localhost:8000/todo/get-todo-selected", {
+                    method: "POST", // or 'PUT'
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data)
+                }).then(async (res) => {
+                    let result = await res.json();
+
+                    console.log("eeee", result.data)
+
+                    if (result.status === "no_task") {
+                        toast.info("Curruntly no task Assigned");
+                    } else if (result.status === "get_todo") {
+                        setTaskList(result.data)
+                    }
+                });
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
     }
 
     useEffect(() => {
-        getTodo();
+        if (user.type === 'admin') {
+            getAllTodo();
+            getAlluser();
+        } else {
+            getTodo();
+        }
     }, [
-        handleAddTodo, handleDeletetask, onDragEnd
+        // handleAddTodo, handleDeletetask, onDragEnd
     ]);
 
     const getTodo = () => {
@@ -209,6 +263,57 @@ export const Home: React.FC = () => {
     }
 
 
+    const getAllTodo = () => {
+        try {
+            const response = fetch("http://localhost:8000/todo/get-all-todo", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }).then(async (res) => {
+                let result = await res.json();
+
+                console.log("eeee", result.data)
+
+                if (result.status === "no_task") {
+                    toast.info("Curruntly no task added");
+                } else if (result.status === "get_todo") {
+                    setTaskList(result.data)
+                }
+            });
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+
+    const getAlluser = () => {
+        try {
+            const response = fetch("http://localhost:8000/get-all-user", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }).then(async (res) => {
+                let result = await res.json();
+
+                console.log("eeee", result.data)
+
+                if (result.status === "no_task") {
+                    toast.info("Curruntly no task added");
+                } else if (result.status === "get_todo") {
+                    setUsers(result.data)
+                }
+            });
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+
+
+
+
 
 
 
@@ -216,7 +321,10 @@ export const Home: React.FC = () => {
 
     return (
         <>
-            <Box sx={{ flexGrow: 1 }}>
+
+
+            {user.type === "user" ? <Box sx={{ flexGrow: 1 }}>
+
                 <AppBar position="static">
                     <Toolbar>
                         <Typography
@@ -244,15 +352,6 @@ export const Home: React.FC = () => {
                         >
                             Hi, {user.userName}
                         </Typography>
-                        <Button variant="contained" color="success" onClick={handleClickOpen} sx={{
-                            marginLeft: '15px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer'
-                        }}><PlaylistAddIcon sx={{
-                            margin: '5px'
-                        }} />
-                            Add TODO
-                        </Button>
 
                         <Button variant="contained" color="error" onClick={handleLogout} sx={{
                             marginLeft: '15px',
@@ -266,6 +365,63 @@ export const Home: React.FC = () => {
                     </Toolbar>
                 </AppBar>
             </Box>
+                :
+
+                <>
+                    <Box sx={{ flexGrow: 1 }}>
+
+                        <AppBar position="static">
+                            <Toolbar>
+                                <Typography
+                                    variant="h5"
+                                    noWrap
+                                    component="div"
+                                    sx={{
+                                        flexGrow: 1,
+                                        display: { xs: 'none', sm: 'block' },
+                                        fontWeight: 'bolder'
+                                    }}
+                                >
+                                    TODO Wish List
+                                </Typography>
+                                <Typography
+                                    variant="h6"
+                                    noWrap
+                                    component="div"
+                                    sx={{
+                                        flexGrow: 1,
+                                        display: { xs: 'none', sm: 'block' },
+                                        textAlign: 'right',
+                                        marginRight: '15px'
+                                    }}
+                                >
+                                    Hi, {user.userName}
+                                </Typography>
+                                <Button variant="contained" color="success" onClick={handleClickOpen} sx={{
+                                    marginLeft: '15px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer'
+                                }}><PlaylistAddIcon sx={{
+                                    margin: '5px'
+                                }} />
+                                    Add TODO
+                                </Button>
+
+                                <Button variant="contained" color="error" onClick={handleLogout} sx={{
+                                    marginLeft: '15px',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer'
+                                }}><LogoutIcon sx={{
+                                    margin: '5px'
+                                }} />
+                                    LogOut
+                                </Button>
+                            </Toolbar>
+                        </AppBar>
+                    </Box>
+                </>
+            }
+
 
 
 
@@ -320,6 +476,21 @@ export const Home: React.FC = () => {
                             {errors.endingDate && (
                                 <p style={{ color: "orangered" }}>{errors.endingDate.message}</p>
                             )}
+                            <>
+                                <label id="dropdown-label">Assign to user</label>
+                                <select
+                                    {...register("UserId", {
+                                        required: "assign to someone is requirded"
+                                    })}
+                                    style={{ margin: '10px', height: "50px" }}
+                                >
+                                    {userList.map((option) => (
+                                        <option key={option._id} value={option._id}>
+                                            {option.userName}
+                                        </option>
+                                    ))}
+                                </select>
+                            </>
                         </FormControl>
                     </DialogContent>
                     <DialogActions>
@@ -340,11 +511,45 @@ export const Home: React.FC = () => {
                 margin: 'auto',
                 marginTop: '30px'
             }}>
-                <Typography variant="h4" gutterBottom sx={{
-                    fontWeight: 'bold'
-                }}>
-                    Yours TODO wish list....
-                </Typography>
+
+
+
+                {user.type === "admin" ?
+                    <>
+                        <Typography variant="h4" gutterBottom sx={{
+                            fontWeight: 'bold'
+                        }}>
+                            TODO wish list....
+                        </Typography>
+                        {/* <Typography variant="h3">filter here</Typography> */}
+                        <InputLabel id="dropdown-label">Filter the To-Do according to users</InputLabel>
+                        <Select
+                            labelId="dropdown-label"
+                            value={selectedValue}
+                            onChange={handleChange}
+                            label="Select an Option"
+                            sx={{
+                                width: "20%"
+                            }}
+                        >
+                            <MenuItem key="all" value="all">
+                                All
+                            </MenuItem>
+                            {userList.map((option) => (
+                                <MenuItem key={option._id} value={option._id}>
+                                    {option.userName}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </>
+                    : <Typography variant="h4" gutterBottom sx={{
+                        fontWeight: 'bold'
+                    }}>
+                        Yours TODO wish list....
+                    </Typography>}
+
+
+
 
                 <DragDropContext onDragEnd={onDragEnd}>
                     <Grid container spacing={0} sx={{
@@ -352,7 +557,7 @@ export const Home: React.FC = () => {
                         display: 'flex'
                     }}>
 
-                        <Droppable key={''} droppableId='todo' >
+                        <Droppable key={'todo'} droppableId='todo' >
                             {(provided) => {
                                 console.log('Droppable rendered with ID: todo');
                                 return (
@@ -400,6 +605,18 @@ export const Home: React.FC = () => {
                                                                     textAlign: 'right',
                                                                     cursor: "pointer"
                                                                 }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                                <Typography variant="body1" sx={{
+                                                                    border: '1px solid rgb(213, 213, 213)',
+                                                                    margin: '10px',
+                                                                    borderRadius: '10px',
+                                                                    display: "inline-block",
+                                                                    padding: '4px 6px',
+                                                                    backgroundColor: 'rgb(96, 210, 248)',
+                                                                    float: "right",
+                                                                    textAlign: 'right',
+                                                                    cursor: "pointer",
+                                                                    color: 'rgb(255,255,255)'
+                                                                }} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />Assigned</Typography>
                                                             </Box>
                                                         )}
 
@@ -413,7 +630,7 @@ export const Home: React.FC = () => {
 
                         </Droppable>
 
-                        <Droppable key={''} droppableId='in_progress' >
+                        <Droppable key={'in_progress'} droppableId='in_progress' >
                             {(provided) => (
                                 <Grid ref={provided.innerRef} {...provided.droppableProps} item md={4} sx={{
                                     //  backgroundColor: "rgb(185, 242, 142)"
@@ -460,6 +677,18 @@ export const Home: React.FC = () => {
                                                                 textAlign: 'right',
                                                                 cursor: "pointer"
                                                             }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                            <Typography variant="body1" sx={{
+                                                                border: '1px solid rgb(213, 213, 213)',
+                                                                margin: '10px',
+                                                                borderRadius: '10px',
+                                                                display: "inline-block",
+                                                                padding: '4px 6px',
+                                                                backgroundColor: 'rgb(96, 210, 248)',
+                                                                float: "right",
+                                                                textAlign: 'right',
+                                                                cursor: "pointer",
+                                                                color: 'rgb(255,255,255)'
+                                                            }} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />Assigned</Typography>
                                                         </Box>
                                                     )}
 
@@ -474,7 +703,7 @@ export const Home: React.FC = () => {
                         </Droppable>
 
 
-                        <Droppable key={''} droppableId="completed" >
+                        <Droppable key={'completed'} droppableId="completed" >
                             {(provided) => (
                                 <Grid ref={provided.innerRef} {...provided.droppableProps} item md={4} sx={{
                                     // border: '1px solid rgb(213, 213, 213)'
@@ -520,6 +749,18 @@ export const Home: React.FC = () => {
                                                                 textAlign: 'right',
                                                                 cursor: "pointer"
                                                             }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                            <Typography variant="body1" sx={{
+                                                                border: '1px solid rgb(213, 213, 213)',
+                                                                margin: '10px',
+                                                                borderRadius: '10px',
+                                                                display: "inline-block",
+                                                                padding: '4px 6px',
+                                                                backgroundColor: 'rgb(96, 210, 248)',
+                                                                float: "right",
+                                                                textAlign: 'right',
+                                                                cursor: "pointer",
+                                                                color: 'rgb(255,255,255)'
+                                                            }} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />Assigned</Typography>
                                                         </Box>
                                                     )}
                                                 </Draggable>

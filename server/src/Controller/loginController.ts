@@ -15,7 +15,8 @@ export const RegisterUser = async (req: Request, res: Response) => {
             const createUser = new Users({
                 userName: req.body.name,
                 userEmail: req.body.email,
-                password: req.body.password
+                password: req.body.password,
+                type: req.body.type
             })
             createUser.save();
             return (
@@ -62,5 +63,32 @@ export const LoginUser = async (req: Request, res: Response)=>{
 
     } catch (err) {
         console.log(err)
+    }
+}
+
+
+export const getAllUser = async (req: Request, res: Response) =>{
+    try {
+        const getAllusers = await Users.find();
+        console.log("tttt", getAllusers)
+
+        if (getAllusers.length === 0) {
+            return (
+                res.send({
+                    status: "no_task"
+                })
+            )
+        } else {
+            return (
+                res.send({
+                    status: "get_todo",
+                    data: getAllusers
+                })
+            )
+        }
+    } catch (err) {
+        res.send({
+            error: err,
+        })
     }
 }

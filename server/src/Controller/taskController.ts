@@ -25,6 +25,61 @@ export const addTodo = async (req: Request, res: Response) => {
     }
 }
 
+export const getAllTodo = async (req: Request, res: Response) =>{
+    try {
+        const getAllTodoTask = await Tasks.find();
+        console.log("tttt", getAllTodoTask)
+
+        if (getAllTodoTask.length === 0) {
+            return (
+                res.send({
+                    status: "no_task"
+                })
+            )
+        } else {
+            return (
+                res.send({
+                    status: "get_todo",
+                    data: getAllTodoTask
+                })
+            )
+        }
+    } catch (err) {
+        res.send({
+            error: err,
+        })
+    }
+}
+
+export const getTodoSelected = async (req: Request, res: Response) => {
+    console.log("iiiii", req.body)
+    try {
+        const getTodoTask = await Tasks.find({ userID: req.body.userid });
+        console.log("ggggggg", getTodoTask)
+        if (getTodoTask.length === 0) {
+            return (
+                res.send({
+                    status: "no_task"
+                })
+            )
+        } else {
+            return (
+                res.send({
+                    status: "get_todo",
+                    data: getTodoTask
+                })
+            )
+        }
+
+    } catch (err) {
+        res.send({
+            error: err,
+        })
+    }
+}
+
+
+
 export const getTodo = async (req: Request, res: Response) => {
     // console.log("iiiii", req.body)
     try {

@@ -24,7 +24,8 @@ export const Register: React.FC = () => {
         let data = {
             name: name,
             email: mail,
-            password: password
+            password: password,
+            type: "user"
         }
         try {
             const response =  fetch("http://localhost:8000/user-register", {
