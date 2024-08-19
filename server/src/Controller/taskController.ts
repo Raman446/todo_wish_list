@@ -1,6 +1,7 @@
 import { error } from "console";
 import { Request, Response } from "express";
 import Tasks from "../Models/Tasks";
+import Users from "../Models/Users";
 
 export const addTodo = async (req: Request, res: Response) => {
     console.log("yyyy", req.body)
@@ -25,11 +26,10 @@ export const addTodo = async (req: Request, res: Response) => {
     }
 }
 
-export const getAllTodo = async (req: Request, res: Response) =>{
+export const getAllTodo = async (req: Request, res: Response) => {
     try {
         const getAllTodoTask = await Tasks.find();
-        console.log("tttt", getAllTodoTask)
-
+        // console.log("xxxxx", getAllNameUser)
         if (getAllTodoTask.length === 0) {
             return (
                 res.send({
@@ -107,18 +107,18 @@ export const getTodo = async (req: Request, res: Response) => {
     }
 }
 
-export const deleteTodo =async (req: Request, res:Response)=>{
+export const deleteTodo = async (req: Request, res: Response) => {
     console.log("rrrrrr", req.body)
-    try{
-        const deleteTask =await Tasks.deleteOne({_id: req.body.taskID});
-        if(deleteTask){
-            return(
+    try {
+        const deleteTask = await Tasks.deleteOne({ _id: req.body.taskID });
+        if (deleteTask) {
+            return (
                 res.send({
                     status: "delete_todo",
                 })
             )
         }
-    }catch(err){
+    } catch (err) {
         res.send({
             error: err
         })
@@ -126,19 +126,64 @@ export const deleteTodo =async (req: Request, res:Response)=>{
 }
 
 
-export const updateTodo = async (req: Request, res: Response)=>{
-    console.log("bbbbb", req.body)
-    try{
-        const updateTodo =await Tasks.findOneAndUpdate({_id: req.body.task_id}, {$set: {status: req.body.destination}});
+export const updateAssignTodo = async (req: Request, res: Response) => {
+    try {
+        const updateTodo = await Tasks.findOneAndUpdate({ _id: req.body.taskID }, { $set: { userID: req.body.userid } });
         console.log("nnnnn", updateTodo)
-        if(updateTodo){
-            return(
+        if (updateTodo) {
+            return (
+                res.send({
+                    status: "assigned",
+                })
+            )
+        }
+    } catch (err) {
+        res.send({
+            error: err
+        })
+    }
+}
+
+
+export const updateTodo = async (req: Request, res: Response) => {
+    try {
+        const updateTodo = await Tasks.findOneAndUpdate({ _id: req.body.taskid }, {
+            $set: {
+                userID: req.body.user_id,
+                todoHeading: req.body.heading,
+                todoDetail: req.body.detail,
+                endingdate: req.body.date,
+                status: req.body.status
+            }
+        })
+        if (updateTodo) {
+            return (
+                res.send({
+                    status: "successfully_update_todo",
+                })
+            )
+        }
+    } catch (err) {
+        res.send({
+            error: err
+        })
+    }
+}
+
+
+export const updateStatusTodo = async (req: Request, res: Response) => {
+    console.log("bbbbb", req.body)
+    try {
+        const updateTodo = await Tasks.findOneAndUpdate({ _id: req.body.task_id }, { $set: { status: req.body.destination } });
+        console.log("nnnnn", updateTodo)
+        if (updateTodo) {
+            return (
                 res.send({
                     status: "status_changed",
                 })
             )
         }
-    }catch(err){
+    } catch (err) {
         res.send({
             error: err
         })

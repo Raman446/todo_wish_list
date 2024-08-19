@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { toast } from "react-toastify";
 // import Draggable from "react-draggable";
@@ -30,6 +31,10 @@ interface taskData {
     UserId: string
 }
 
+interface taskAssignData {
+    UserId: string
+}
+
 export const Home: React.FC = () => {
 
     const user: any = useSelector((state: RootState) => state.userSlice);
@@ -40,15 +45,30 @@ export const Home: React.FC = () => {
         userName: "",
         _id: ""
     }])
+    console.log(userList)
     const [selectedValue, setSelectedvalue] = useState('');
     const [open, setOpen] = useState(false);
+    const [open1, setOpen1] = useState(false);
+    const [updateTask, setUpdateTask] = useState(false);
+
+
     const [taskList, setTaskList] = useState([{
         todoHeading: "",
         todoDetail: "",
         endingdate: "",
         status: "",
+        userID: "",
         _id: ""
     }]);
+
+    const [edittaskList, setEditTaskList] = useState({
+        todoHeading: "",
+        todoDetail: "",
+        endingdate: "",
+        status: "",
+
+        _id: ""
+    });
     console.log("jjjjj", taskList)
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -162,7 +182,7 @@ export const Home: React.FC = () => {
             task_id: draggableId
         }
         try {
-            const response = fetch("http://localhost:8000/todo/update-todo", {
+            const response = fetch("http://localhost:8000/todo/update-status-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -297,7 +317,7 @@ export const Home: React.FC = () => {
             }).then(async (res) => {
                 let result = await res.json();
 
-                console.log("eeee", result.data)
+                console.log("zzzzzz", result.data)
 
                 if (result.status === "no_task") {
                     toast.info("Curruntly no task added");
@@ -310,10 +330,124 @@ export const Home: React.FC = () => {
         }
     }
 
+    const [taskIId, setTaskIId] = useState('')
+
+    const handleEdittask = (todo: any) => {
+        setUpdateTask(true)
+        console.log("gggggg", todo._id)
+        setTaskIId(todo._id)
+        reset({
+            taskHeading: todo.todoHeading,
+            taskDetail: todo.todoDetail,
+            endingDate: todo.endingDate
+        })
+        setOpen(true)
+    }
+
+    const handleUpdateTodo: SubmitHandler<taskData> = (data) => {
+            let dataa = {
+                user_id: data.UserId, //now here value come from form
+                heading: data.taskHeading,
+                detail: data.taskDetail,
+                date: data.endingDate,
+                status: "todo",
+                taskid: taskIId
+            }
+            try {
+                const response = fetch("http://localhost:8000/todo/update-todo", {
+                    method: "POST", // or 'PUT'
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dataa)
+                }).then(async (res) => {
+                    let result = await res.json();
+    
+                    console.log("ress", result)
+    
+                    if (result.status === "successfully_update_todo") {
+                        toast.success("Successfully update todo task");
+                        reset();
+                        setOpen(false);
+                        setUpdateTask(false);
+                        if(user.type==='admin'){
+                            getAllTodo();
+                        }else{
+                            getTodo();
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error("Error:", error);
+            }
+    }
 
 
 
 
+
+
+
+
+
+
+
+
+    const handleClose1 = () => {
+        setOpen1(false);
+    };
+
+    const handleOpen1 = () => {
+        setOpen1(true);
+    };
+
+
+    const [assgintaskId, setAssgintaskId] = useState('');
+    const { register: register1, formState: { errors: error1 }, reset: reset1, handleSubmit: handleSubmit1 } = useForm<taskAssignData>(
+        {
+            defaultValues: {
+                UserId: ""
+            }
+        }
+    )
+
+    const handleAssign = (id: string) => {
+        console.log("hhhhhhh", id)
+        setAssgintaskId(id)
+        setOpen1(true)
+    }
+
+    const handleUpdateAssign: SubmitHandler<taskAssignData> = (data) => {
+        console.log("ooooo", data)
+        handleClose1();
+        let dataa = {
+            taskID: assgintaskId,
+            userid: data.UserId
+        }
+        console.log("vvvvvv", dataa)
+        try {
+            const response = fetch("http://localhost:8000/todo/update-assign-todo", {
+                method: "POST", // or 'PUT'
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataa)
+            }).then(async (res) => {
+                let result = await res.json();
+
+                console.log("eeee", result.data)
+
+                if (result.status === "assigned") {
+                    toast.info("Task assign to new user Successfully");
+                    reset1();
+                    getAllTodo();
+                }
+            });
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
 
 
 
@@ -424,7 +558,7 @@ export const Home: React.FC = () => {
 
 
 
-
+            {/* Dialog for add the task */}
             <Dialog
                 fullScreen={fullScreen}
                 open={open}
@@ -434,7 +568,7 @@ export const Home: React.FC = () => {
                 <DialogTitle id="responsive-dialog-title">
                     Add your TODO
                 </DialogTitle>
-                <form onSubmit={handleSubmit(handleAddTodo)}>
+                <form onSubmit={updateTask ? handleSubmit(handleUpdateTodo) : handleSubmit(handleAddTodo)}>
                     <DialogContent>
                         <FormControl sx={{
                             margin: '10px'
@@ -446,6 +580,7 @@ export const Home: React.FC = () => {
                                 })}
 
                                 type="text"
+                                // value={taskHeading}
                                 label='TODO Heading' sx={{
                                     margin: '10px'
                                 }} />
@@ -458,6 +593,7 @@ export const Home: React.FC = () => {
                                     required: "Detail is required"
                                 })}
                                 type="text"
+                                // value={taskList?.todoDetail || ""}
                                 label='TODO Detail' sx={{
                                     margin: '10px'
                                 }} />
@@ -469,7 +605,9 @@ export const Home: React.FC = () => {
                                 {...register("endingDate", {
                                     required: "date is required"
                                 })}
-                                type="date" sx={{
+                                type="date"
+                                // value={taskList?.endingdate || ""}
+                                sx={{
                                     margin: '10px'
                                 }}
                             />
@@ -479,6 +617,7 @@ export const Home: React.FC = () => {
                             <>
                                 <label id="dropdown-label">Assign to user</label>
                                 <select
+                                    // value={taskList?._id || ""}
                                     {...register("UserId", {
                                         required: "assign to someone is requirded"
                                     })}
@@ -494,10 +633,63 @@ export const Home: React.FC = () => {
                         </FormControl>
                     </DialogContent>
                     <DialogActions>
-                        <Button type="submit" autoFocus color="success">
+                        {updateTask ? <Button type="submit" autoFocus color="success">
+                            UPDATE
+                        </Button> : <Button type="submit" autoFocus color="success">
                             Add
-                        </Button>
+                        </Button>}
+
                         <Button onClick={handleClose} autoFocus color="error">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+
+
+
+
+
+
+
+            {/* Dialog for update the assign user */}
+            <Dialog
+                fullScreen={fullScreen}
+                open={open1}
+                onClose={handleClose1}
+                aria-labelledby="responsive-dialog-title"
+            >
+                <DialogTitle id="responsive-dialog-title">
+                    Assign the task to New user
+                </DialogTitle>
+                <form onSubmit={handleSubmit1(handleUpdateAssign)}>
+                    <DialogContent>
+                        <FormControl sx={{
+                            margin: '10px'
+                        }}>
+                            <>
+                                <label id="dropdown-label">Assign to user</label>
+                                <select
+                                    // value={taskList?._id || ""}
+                                    {...register1("UserId", {
+                                        required: "assign to someone is requirded"
+                                    })}
+                                    style={{ margin: '10px', height: "50px" }}
+                                >
+                                    {userList.map((option) => (
+                                        <option key={option._id} value={option._id}>
+                                            {option.userName}
+                                        </option>
+                                    ))}
+                                </select>
+                            </>
+                        </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button type="submit" autoFocus color="success">
+                            UPDATE
+                        </Button>
+                        <Button onClick={handleClose1} autoFocus color="error">
                             Close
                         </Button>
                     </DialogActions>
@@ -611,12 +803,33 @@ export const Home: React.FC = () => {
                                                                     borderRadius: '10px',
                                                                     display: "inline-block",
                                                                     padding: '4px 6px',
+                                                                    backgroundColor: 'rgb(156, 175, 150)',
+                                                                    textAlign: 'right',
+                                                                    cursor: "pointer"
+                                                                }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                                <Typography variant="body1" sx={{
+                                                                    border: '1px solid rgb(213, 213, 213)',
+                                                                    margin: '10px',
+                                                                    borderRadius: '10px',
+                                                                    display: "inline-block",
+                                                                    padding: '4px 6px',
                                                                     backgroundColor: 'rgb(96, 210, 248)',
                                                                     float: "right",
                                                                     textAlign: 'right',
                                                                     cursor: "pointer",
                                                                     color: 'rgb(255,255,255)'
-                                                                }} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />Assigned</Typography>
+                                                                }} onClick={() => handleAssign(task._id)} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />
+                                                                    {userList.map((user) => {
+                                                                        if (user._id === task.userID) {
+                                                                            return (
+                                                                                <>
+                                                                                    {user.userName}
+                                                                                </>
+                                                                            )
+
+                                                                        }
+                                                                    })}
+                                                                </Typography>
                                                             </Box>
                                                         )}
 
@@ -683,12 +896,33 @@ export const Home: React.FC = () => {
                                                                 borderRadius: '10px',
                                                                 display: "inline-block",
                                                                 padding: '4px 6px',
+                                                                backgroundColor: 'rgb(156, 175, 150)',
+                                                                textAlign: 'right',
+                                                                cursor: "pointer"
+                                                            }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                            <Typography variant="body1" sx={{
+                                                                border: '1px solid rgb(213, 213, 213)',
+                                                                margin: '10px',
+                                                                borderRadius: '10px',
+                                                                display: "inline-block",
+                                                                padding: '4px 6px',
                                                                 backgroundColor: 'rgb(96, 210, 248)',
                                                                 float: "right",
                                                                 textAlign: 'right',
                                                                 cursor: "pointer",
                                                                 color: 'rgb(255,255,255)'
-                                                            }} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />Assigned</Typography>
+                                                            }} onClick={() => handleAssign(task._id)} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />
+                                                                {userList.map((user) => {
+                                                                    if (user._id === task.userID) {
+                                                                        return (
+                                                                            <>
+                                                                                {user.userName}
+                                                                            </>
+                                                                        )
+
+                                                                    }
+                                                                })}
+                                                            </Typography>
                                                         </Box>
                                                     )}
 
@@ -755,12 +989,33 @@ export const Home: React.FC = () => {
                                                                 borderRadius: '10px',
                                                                 display: "inline-block",
                                                                 padding: '4px 6px',
+                                                                backgroundColor: 'rgb(156, 175, 150)',
+                                                                textAlign: 'right',
+                                                                cursor: "pointer"
+                                                            }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
+                                                            <Typography variant="body1" sx={{
+                                                                border: '1px solid rgb(213, 213, 213)',
+                                                                margin: '10px',
+                                                                borderRadius: '10px',
+                                                                display: "inline-block",
+                                                                padding: '4px 6px',
                                                                 backgroundColor: 'rgb(96, 210, 248)',
                                                                 float: "right",
                                                                 textAlign: 'right',
                                                                 cursor: "pointer",
                                                                 color: 'rgb(255,255,255)'
-                                                            }} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />Assigned</Typography>
+                                                            }} onClick={() => handleAssign(task._id)} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />
+                                                                {userList.map((user) => {
+                                                                    if (user._id === task.userID) {
+                                                                        return (
+                                                                            <>
+                                                                                {user.userName}
+                                                                            </>
+                                                                        )
+
+                                                                    }
+                                                                })}
+                                                            </Typography>
                                                         </Box>
                                                     )}
                                                 </Draggable>
