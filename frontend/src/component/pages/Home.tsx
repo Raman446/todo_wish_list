@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, {useEffect, useState } from "react";
 
-import { Typography, Box, AppBar, Toolbar, Button, Grid, Dialog, DialogContent, DialogTitle, DialogContentText, DialogActions, FormControl, TextField, InputLabel, Select, MenuItem, SelectChangeEvent } from "@mui/material";
-import { Controller, SubmitHandler, useFieldArray, useForm } from 'react-hook-form'
+import { Typography, Box, AppBar, Toolbar, Button, Grid, Dialog, DialogContent, DialogTitle, FormControl, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, DialogActions } from "@mui/material";
+import { SubmitHandler, useForm } from 'react-hook-form'
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from "react-router-dom";
@@ -9,17 +9,14 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store";
 import { logout } from "../store/slices/LoginSlice";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import { toast } from "react-toastify";
-// import Draggable from "react-draggable";
-// import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import { DragDropContext, Droppable, Draggable, DropResult } from "react-beautiful-dnd";
-// import { Draggable, Droppable } from 'react-drag-and-drop';
+
 
 
 
@@ -34,6 +31,11 @@ interface taskData {
 interface taskAssignData {
     UserId: string
 }
+
+
+
+
+
 
 export const Home: React.FC = () => {
 
@@ -123,6 +125,7 @@ export const Home: React.FC = () => {
                     reset();
                     setOpen(false);
                     getAllTodo();
+                    setSelectedvalue("");
                 }
             });
         } catch (error) {
@@ -152,6 +155,7 @@ export const Home: React.FC = () => {
                     toast.error("Task deleted succussfully");
                     if (user.type === "admin") {
                         getAllTodo();
+                        setSelectedvalue("");
                     } else {
                         getTodo();
                     }
@@ -195,7 +199,12 @@ export const Home: React.FC = () => {
 
                 if (result.status === "status_changed") {
                     toast.info("Status of Task changed Successfully");
+                    if(user.type !== 'admin'){
                     getTodo();
+                    }else{
+                        getAllTodo();
+                        setSelectedvalue("")
+                    }
                 }
             });
 
@@ -234,6 +243,8 @@ export const Home: React.FC = () => {
 
                     if (result.status === "no_task") {
                         toast.info("Curruntly no task Assigned");
+                        getAllTodo();
+                        setSelectedvalue("");
                     } else if (result.status === "get_todo") {
                         setTaskList(result.data)
                     }
@@ -250,6 +261,7 @@ export const Home: React.FC = () => {
             getAlluser();
         } else {
             getTodo();
+            getAlluser();
         }
     }, [
         // handleAddTodo, handleDeletetask, onDragEnd
@@ -336,6 +348,7 @@ export const Home: React.FC = () => {
         setUpdateTask(true)
         console.log("gggggg", todo._id)
         setTaskIId(todo._id)
+        const d = new Date(todo.endingDate)
         reset({
             taskHeading: todo.todoHeading,
             taskDetail: todo.todoDetail,
@@ -372,6 +385,7 @@ export const Home: React.FC = () => {
                         setUpdateTask(false);
                         if(user.type==='admin'){
                             getAllTodo();
+                            setSelectedvalue("");
                         }else{
                             getTodo();
                         }
@@ -441,6 +455,7 @@ export const Home: React.FC = () => {
                     toast.info("Task assign to new user Successfully");
                     reset1();
                     getAllTodo();
+                    setSelectedvalue("");
                 }
             });
 
@@ -459,7 +474,7 @@ export const Home: React.FC = () => {
 
             {user.type === "user" ? <Box sx={{ flexGrow: 1 }}>
 
-                <AppBar position="static">
+                <AppBar position="fixed">
                     <Toolbar>
                         <Typography
                             variant="h5"
@@ -504,7 +519,7 @@ export const Home: React.FC = () => {
                 <>
                     <Box sx={{ flexGrow: 1 }}>
 
-                        <AppBar position="static">
+                        <AppBar position="fixed">
                             <Toolbar>
                                 <Typography
                                     variant="h5"
@@ -701,7 +716,7 @@ export const Home: React.FC = () => {
             <Box sx={{
                 maxWidth: '80%',
                 margin: 'auto',
-                marginTop: '30px'
+                marginTop: '90px'
             }}>
 
 
@@ -749,7 +764,7 @@ export const Home: React.FC = () => {
                         display: 'flex'
                     }}>
 
-                        <Droppable key={'todo'} droppableId='todo' >
+                        <Droppable droppableId='todo' type="group">
                             {(provided) => {
                                 console.log('Droppable rendered with ID: todo');
                                 return (
@@ -843,7 +858,7 @@ export const Home: React.FC = () => {
 
                         </Droppable>
 
-                        <Droppable key={'in_progress'} droppableId='in_progress' >
+                        <Droppable droppableId='in_progress' type="group">
                             {(provided) => (
                                 <Grid ref={provided.innerRef} {...provided.droppableProps} item md={4} sx={{
                                     //  backgroundColor: "rgb(185, 242, 142)"
@@ -937,7 +952,7 @@ export const Home: React.FC = () => {
                         </Droppable>
 
 
-                        <Droppable key={'completed'} droppableId="completed" >
+                        <Droppable droppableId="completed" type="group">
                             {(provided) => (
                                 <Grid ref={provided.innerRef} {...provided.droppableProps} item md={4} sx={{
                                     // border: '1px solid rgb(213, 213, 213)'
