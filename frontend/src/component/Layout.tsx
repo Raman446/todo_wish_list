@@ -1,10 +1,13 @@
+import { Box } from "@mui/material";
 import React from "react";
 import { Outlet } from "react-router-dom";
 
-export const Layout: React.FC =()=>{
-    return(
+export const Layout: React.FC = () => {
+    return (
         <>
-        <Outlet />
+            <Box sx={{ paddingTop: "90px" }}>
+                <Outlet />
+            </Box>
         </>
     )
 }

@@ -17,18 +17,15 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         login: (state, action: PayloadAction<UserState>) => {
-            // console.log("kkkkk", action.payload)
 
             state._id = action.payload._id;
             state.userName = action.payload.userName;
-            state.type= action.payload.type;
-
-            // console.log("ooooooo", state.userName)
+            state.type = action.payload.type;
         },
         logout: (state) => {
             state._id = null;
             state.userName = null;
-            state.type=null;
+            state.type = null;
         }
     }
 })

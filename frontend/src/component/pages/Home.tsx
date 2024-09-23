@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Typography, Box, AppBar, Toolbar, Button, Grid, Dialog, DialogContent, DialogTitle, FormControl, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, DialogActions } from "@mui/material";
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -16,6 +16,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
+import { FloatingWhatsApp } from 'react-floating-whatsapp';
+
 
 
 
@@ -47,7 +49,6 @@ export const Home: React.FC = () => {
         userName: "",
         _id: ""
     }])
-    console.log(userList)
     const [selectedValue, setSelectedvalue] = useState('');
     const [open, setOpen] = useState(false);
     const [open1, setOpen1] = useState(false);
@@ -63,15 +64,13 @@ export const Home: React.FC = () => {
         _id: ""
     }]);
 
-    const [edittaskList, setEditTaskList] = useState({
-        todoHeading: "",
-        todoDetail: "",
-        endingdate: "",
-        status: "",
-
-        _id: ""
-    });
-    console.log("jjjjj", taskList)
+    // const [edittaskList, setEditTaskList] = useState({
+    //     todoHeading: "",
+    //     todoDetail: "",
+    //     endingdate: "",
+    //     status: "",
+    //     _id: ""
+    // });
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -89,7 +88,7 @@ export const Home: React.FC = () => {
         navigate(`/`);
     }
 
-    const { register, formState: { errors, isSubmitting }, control, reset, handleSubmit } = useForm<taskData>(
+    const { register, formState: { errors }, reset, handleSubmit } = useForm<taskData>(
         {
             defaultValues: {
                 taskHeading: "",
@@ -109,7 +108,7 @@ export const Home: React.FC = () => {
             status: "todo"
         }
         try {
-            const response = fetch("http://localhost:8000/todo/add-todo", {
+            fetch("http://192.168.1.6:8000/todo/add-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -118,7 +117,7 @@ export const Home: React.FC = () => {
             }).then(async (res) => {
                 let result = await res.json();
 
-                console.log("ress", result)
+
 
                 if (result.status === "successfully_add_todo") {
                     toast.success("Successfully add todo task");
@@ -135,12 +134,11 @@ export const Home: React.FC = () => {
 
 
     const handleDeletetask = (id: string) => {
-        console.log("click delete with id", id)
         let data = {
             taskID: id,
         }
         try {
-            const response = fetch("http://localhost:8000/todo/delete-todo", {
+            fetch("http://192.168.1.6:8000/todo/delete-todo", {
                 method: "DELETE", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -149,7 +147,6 @@ export const Home: React.FC = () => {
             }).then(async (res) => {
                 let result = await res.json();
 
-                console.log("eeee", result)
 
                 if (result.status === "delete_todo") {
                     toast.error("Task deleted succussfully");
@@ -168,7 +165,6 @@ export const Home: React.FC = () => {
     };
 
     const onDragEnd = (result: DropResult) => {
-        console.log("resut: ", result)
         const { source, destination, draggableId } = result;
         if (!destination) {
             return;
@@ -186,7 +182,7 @@ export const Home: React.FC = () => {
             task_id: draggableId
         }
         try {
-            const response = fetch("http://localhost:8000/todo/update-status-todo", {
+            fetch("http://192.168.1.6:8000/todo/update-status-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -195,13 +191,11 @@ export const Home: React.FC = () => {
             }).then(async (res) => {
                 let result = await res.json();
 
-                console.log("eeee", result.data)
-
                 if (result.status === "status_changed") {
                     toast.info("Status of Task changed Successfully");
-                    if(user.type !== 'admin'){
-                    getTodo();
-                    }else{
+                    if (user.type !== 'admin') {
+                        getTodo();
+                    } else {
                         getAllTodo();
                         setSelectedvalue("")
                     }
@@ -218,19 +212,16 @@ export const Home: React.FC = () => {
     const handleChange = (e: SelectChangeEvent) => {
         const newValue = e.target.value as string;
         setSelectedvalue((prevState) => {
-            console.log('Previous State:', prevState);
-            console.log('New Value:', newValue);
             return newValue;
         });
         if (newValue === "all") {
             getAllTodo();
         } else {
-            console.log("wwwwwwwww", newValue)
             let data = {
                 userid: newValue
             }
             try {
-                const response = fetch("http://localhost:8000/todo/get-todo-selected", {
+                fetch("http://192.168.1.6:8000/todo/get-todo-selected", {
                     method: "POST", // or 'PUT'
                     headers: {
                         "Content-Type": "application/json",
@@ -238,8 +229,6 @@ export const Home: React.FC = () => {
                     body: JSON.stringify(data)
                 }).then(async (res) => {
                     let result = await res.json();
-
-                    console.log("eeee", result.data)
 
                     if (result.status === "no_task") {
                         toast.info("Curruntly no task Assigned");
@@ -255,24 +244,12 @@ export const Home: React.FC = () => {
         }
     }
 
-    useEffect(() => {
-        if (user.type === 'admin') {
-            getAllTodo();
-            getAlluser();
-        } else {
-            getTodo();
-            getAlluser();
-        }
-    }, [
-        // handleAddTodo, handleDeletetask, onDragEnd
-    ]);
-
-    const getTodo = () => {
+    const getTodo = useCallback(() => {
         let data = {
             userid: user._id
         }
         try {
-            const response = fetch("http://localhost:8000/todo/get-todo", {
+            fetch("http://192.168.1.6:8000/todo/get-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -281,8 +258,6 @@ export const Home: React.FC = () => {
             }).then(async (res) => {
                 let result = await res.json();
 
-                console.log("eeee", result.data)
-
                 if (result.status === "no_task") {
                     toast.info("Curruntly no task added");
                 } else if (result.status === "get_todo") {
@@ -292,20 +267,18 @@ export const Home: React.FC = () => {
         } catch (error) {
             console.error("Error:", error);
         }
-    }
+    }, [user._id]);
 
 
     const getAllTodo = () => {
         try {
-            const response = fetch("http://localhost:8000/todo/get-all-todo", {
+            fetch("http://192.168.1.6:8000/todo/get-all-todo", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                 },
             }).then(async (res) => {
                 let result = await res.json();
-
-                console.log("eeee", result.data)
 
                 if (result.status === "no_task") {
                     toast.info("Curruntly no task added");
@@ -319,17 +292,25 @@ export const Home: React.FC = () => {
     }
 
 
+    useEffect(() => {
+        if (user.type === 'admin') {
+            getAllTodo();
+            getAlluser();
+        } else {
+            getTodo();
+            getAlluser();
+        }
+    }, [user.type, getTodo]);
+
     const getAlluser = () => {
         try {
-            const response = fetch("http://localhost:8000/get-all-user", {
+            fetch("http://192.168.1.6:8000/get-all-user", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
                 },
             }).then(async (res) => {
                 let result = await res.json();
-
-                console.log("zzzzzz", result.data)
 
                 if (result.status === "no_task") {
                     toast.info("Curruntly no task added");
@@ -346,9 +327,7 @@ export const Home: React.FC = () => {
 
     const handleEdittask = (todo: any) => {
         setUpdateTask(true)
-        console.log("gggggg", todo._id)
         setTaskIId(todo._id)
-        const d = new Date(todo.endingDate)
         reset({
             taskHeading: todo.todoHeading,
             taskDetail: todo.todoDetail,
@@ -358,42 +337,40 @@ export const Home: React.FC = () => {
     }
 
     const handleUpdateTodo: SubmitHandler<taskData> = (data) => {
-            let dataa = {
-                user_id: data.UserId, //now here value come from form
-                heading: data.taskHeading,
-                detail: data.taskDetail,
-                date: data.endingDate,
-                status: "todo",
-                taskid: taskIId
-            }
-            try {
-                const response = fetch("http://localhost:8000/todo/update-todo", {
-                    method: "POST", // or 'PUT'
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(dataa)
-                }).then(async (res) => {
-                    let result = await res.json();
-    
-                    console.log("ress", result)
-    
-                    if (result.status === "successfully_update_todo") {
-                        toast.success("Successfully update todo task");
-                        reset();
-                        setOpen(false);
-                        setUpdateTask(false);
-                        if(user.type==='admin'){
-                            getAllTodo();
-                            setSelectedvalue("");
-                        }else{
-                            getTodo();
-                        }
+        let dataa = {
+            user_id: data.UserId, //now here value come from form
+            heading: data.taskHeading,
+            detail: data.taskDetail,
+            date: data.endingDate,
+            status: "todo",
+            taskid: taskIId
+        }
+        try {
+            fetch("http://192.168.1.6:8000/todo/update-todo", {
+                method: "POST", // or 'PUT'
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dataa)
+            }).then(async (res) => {
+                let result = await res.json();
+
+                if (result.status === "successfully_update_todo") {
+                    toast.success("Successfully update todo task");
+                    reset();
+                    setOpen(false);
+                    setUpdateTask(false);
+                    if (user.type === 'admin') {
+                        getAllTodo();
+                        setSelectedvalue("");
+                    } else {
+                        getTodo();
                     }
-                });
-            } catch (error) {
-                console.error("Error:", error);
-            }
+                }
+            });
+        } catch (error) {
+            console.error("Error:", error);
+        }
     }
 
 
@@ -411,13 +388,13 @@ export const Home: React.FC = () => {
         setOpen1(false);
     };
 
-    const handleOpen1 = () => {
-        setOpen1(true);
-    };
+    // const handleOpen1 = () => {
+    //     setOpen1(true);
+    // };
 
 
     const [assgintaskId, setAssgintaskId] = useState('');
-    const { register: register1, formState: { errors: error1 }, reset: reset1, handleSubmit: handleSubmit1 } = useForm<taskAssignData>(
+    const { register: register1, reset: reset1, handleSubmit: handleSubmit1 } = useForm<taskAssignData>(
         {
             defaultValues: {
                 UserId: ""
@@ -426,21 +403,18 @@ export const Home: React.FC = () => {
     )
 
     const handleAssign = (id: string) => {
-        console.log("hhhhhhh", id)
         setAssgintaskId(id)
         setOpen1(true)
     }
 
     const handleUpdateAssign: SubmitHandler<taskAssignData> = (data) => {
-        console.log("ooooo", data)
         handleClose1();
         let dataa = {
             taskID: assgintaskId,
             userid: data.UserId
         }
-        console.log("vvvvvv", dataa)
         try {
-            const response = fetch("http://localhost:8000/todo/update-assign-todo", {
+            fetch("http://192.168.1.6:8000/todo/update-assign-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -448,8 +422,6 @@ export const Home: React.FC = () => {
                 body: JSON.stringify(dataa)
             }).then(async (res) => {
                 let result = await res.json();
-
-                console.log("eeee", result.data)
 
                 if (result.status === "assigned") {
                     toast.info("Task assign to new user Successfully");
@@ -460,16 +432,36 @@ export const Home: React.FC = () => {
             });
 
         } catch (err) {
-            console.log(err)
+            console.error(err)
         }
     }
 
-
-
+    const validateDate = (value: string) => {
+        const selectedDate = new Date(value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selectedDate >= today || "Date must be today or in the future";
+    };
 
 
     return (
         <>
+            <FloatingWhatsApp
+                phoneNumber='+91 9914176950'
+                accountName="Ramandeep Singh"
+                avatar="https://via.placeholder.com/150"
+                darkMode={false}
+                chatMessage='Hello, how can we help you?'
+                placeholder="Type a message..."
+                statusMessage="Replies within a few minutes"
+                allowClickAway={true}
+                allowEsc={true}
+                styles={{
+                    zIndex: 1000,
+                }}
+
+            />
+
 
 
             {user.type === "user" ? <Box sx={{ flexGrow: 1 }}>
@@ -579,6 +571,9 @@ export const Home: React.FC = () => {
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="responsive-dialog-title"
+                maxWidth="sm"
+                fullWidth
+
             >
                 <DialogTitle id="responsive-dialog-title">
                     Add your TODO
@@ -586,17 +581,19 @@ export const Home: React.FC = () => {
                 <form onSubmit={updateTask ? handleSubmit(handleUpdateTodo) : handleSubmit(handleAddTodo)}>
                     <DialogContent>
                         <FormControl sx={{
-                            margin: '10px'
+                            margin: '10px',
+                            width: "100%"
                         }}>
                             <TextField
                                 required
                                 {...register("taskHeading", {
                                     required: "Heading is required"
                                 })}
-
+                                fullWidth
                                 type="text"
                                 // value={taskHeading}
-                                label='TODO Heading' sx={{
+                                label='TODO Heading'
+                                sx={{
                                     margin: '10px'
                                 }} />
                             {errors.taskHeading && (
@@ -618,7 +615,8 @@ export const Home: React.FC = () => {
                             <TextField
                                 required
                                 {...register("endingDate", {
-                                    required: "date is required"
+                                    required: "date is required",
+                                    validate: validateDate
                                 })}
                                 type="date"
                                 // value={taskList?.endingdate || ""}
@@ -714,13 +712,9 @@ export const Home: React.FC = () => {
 
 
             <Box sx={{
-                maxWidth: '80%',
+                maxWidth: '90%',
                 margin: 'auto',
-                marginTop: '90px'
             }}>
-
-
-
                 {user.type === "admin" ?
                     <>
                         <Typography variant="h4" gutterBottom sx={{
@@ -728,7 +722,6 @@ export const Home: React.FC = () => {
                         }}>
                             TODO wish list....
                         </Typography>
-                        {/* <Typography variant="h3">filter here</Typography> */}
                         <InputLabel id="dropdown-label">Filter the To-Do according to users</InputLabel>
                         <Select
                             labelId="dropdown-label"
@@ -736,7 +729,13 @@ export const Home: React.FC = () => {
                             onChange={handleChange}
                             label="Select an Option"
                             sx={{
-                                width: "20%"
+                                width: {
+                                    xs: "90%",
+                                    sm: "75%",
+                                    md: "50%",
+                                    lg: "30%",
+                                    xl: "20%",
+                                }
                             }}
                         >
                             <MenuItem key="all" value="all">
@@ -759,7 +758,7 @@ export const Home: React.FC = () => {
 
 
                 <DragDropContext onDragEnd={onDragEnd}>
-                    <Grid container spacing={0} sx={{
+                    <Grid container spacing={2} sx={{
                         marginTop: '30px',
                         display: 'flex'
                     }}>
@@ -769,16 +768,18 @@ export const Home: React.FC = () => {
                                 console.log('Droppable rendered with ID: todo');
                                 return (
                                     <Grid
+                                        xs={12} sm={12} md={6} lg={6} xl={4}
                                         ref={provided.innerRef}
                                         {...provided.droppableProps}
-                                        item md={4}>
+                                        item >
                                         <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Todo</Typography>
 
                                         {taskList?.map((task, index) => {
-                                            if (task.status == 'todo')
+                                            if (String(task.status) === 'todo')
                                                 return (
                                                     <Draggable key={task._id} draggableId={task._id.toString()} index={index}>
                                                         {(provided) => (
+
                                                             <Box
                                                                 {...provided.draggableProps}
                                                                 {...provided.dragHandleProps}
@@ -824,7 +825,7 @@ export const Home: React.FC = () => {
                                                                 }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
                                                                 <Typography variant="body1" sx={{
                                                                     border: '1px solid rgb(213, 213, 213)',
-                                                                    margin: '10px',
+                                                                    margin: '10px 10px 10px 0px',
                                                                     borderRadius: '10px',
                                                                     display: "inline-block",
                                                                     padding: '4px 6px',
@@ -843,6 +844,7 @@ export const Home: React.FC = () => {
                                                                             )
 
                                                                         }
+                                                                        return null;
                                                                     })}
                                                                 </Typography>
                                                             </Box>
@@ -850,6 +852,7 @@ export const Home: React.FC = () => {
 
                                                     </Draggable>
                                                 )
+                                            return null;
                                         })}
                                         {provided.placeholder}
                                     </Grid>
@@ -860,15 +863,17 @@ export const Home: React.FC = () => {
 
                         <Droppable droppableId='in_progress' type="group">
                             {(provided) => (
-                                <Grid ref={provided.innerRef} {...provided.droppableProps} item md={4} sx={{
-                                    //  backgroundColor: "rgb(185, 242, 142)"
-                                    // border: '1px solid rgb(213, 213, 213)'
-                                }}>
+                                <Grid
+                                    xs={12} sm={12} md={6} lg={6} xl={4}
+                                    ref={provided.innerRef} {...provided.droppableProps} item sx={{
+                                        //  backgroundColor: "rgb(185, 242, 142)"
+                                        // border: '1px solid rgb(213, 213, 213)'
+                                    }}>
                                     <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>In-progress</Typography>
 
 
                                     {taskList?.map((task, index) => {
-                                        if (task.status == "in_progress")
+                                        if (String(task.status) === "in_progress")
                                             return (
                                                 <Draggable draggableId={task._id} index={index}>
                                                     {(provided) => (
@@ -917,7 +922,7 @@ export const Home: React.FC = () => {
                                                             }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
                                                             <Typography variant="body1" sx={{
                                                                 border: '1px solid rgb(213, 213, 213)',
-                                                                margin: '10px',
+                                                                margin: '10px 10px 10px 0px',
                                                                 borderRadius: '10px',
                                                                 display: "inline-block",
                                                                 padding: '4px 6px',
@@ -936,6 +941,7 @@ export const Home: React.FC = () => {
                                                                         )
 
                                                                     }
+                                                                    return null;
                                                                 })}
                                                             </Typography>
                                                         </Box>
@@ -943,6 +949,7 @@ export const Home: React.FC = () => {
 
                                                 </Draggable>
                                             )
+                                        return null;
                                     })}
                                     {provided.placeholder}
 
@@ -954,14 +961,14 @@ export const Home: React.FC = () => {
 
                         <Droppable droppableId="completed" type="group">
                             {(provided) => (
-                                <Grid ref={provided.innerRef} {...provided.droppableProps} item md={4} sx={{
-                                    // border: '1px solid rgb(213, 213, 213)'
-                                }}>
+                                <Grid
+                                    xs={12} sm={12} md={6} lg={6} xl={4}
+                                    ref={provided.innerRef} {...provided.droppableProps} item>
                                     <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Completed</Typography>
 
 
                                     {taskList?.map((task, index) => {
-                                        if (task.status == "completed")
+                                        if (String(task.status) === "completed")
                                             return (
                                                 <Draggable draggableId={task._id} index={index}>
                                                     {(provided) => (
@@ -1010,7 +1017,7 @@ export const Home: React.FC = () => {
                                                             }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
                                                             <Typography variant="body1" sx={{
                                                                 border: '1px solid rgb(213, 213, 213)',
-                                                                margin: '10px',
+                                                                margin: '10px 10px 10px 0px',
                                                                 borderRadius: '10px',
                                                                 display: "inline-block",
                                                                 padding: '4px 6px',
@@ -1029,12 +1036,14 @@ export const Home: React.FC = () => {
                                                                         )
 
                                                                     }
+                                                                    return null;
                                                                 })}
                                                             </Typography>
                                                         </Box>
                                                     )}
                                                 </Draggable>
                                             )
+                                        return null;
                                     })}
 
                                     {provided.placeholder}

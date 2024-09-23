@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, Box, Typography, Stack, TextField, Button, FormControl } from "@mui/material";
+import { Grid, Box, Typography, TextField, Button } from "@mui/material";
 
 import loginPic from '../images/4609476.jpg'
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,7 @@ export const Register: React.FC = () => {
     }
 
 
-    const registerUser = (e:any) => {
+    const registerUser = (e: any) => {
         e.preventDefault();
         let data = {
             name: name,
@@ -28,7 +28,7 @@ export const Register: React.FC = () => {
             type: "user"
         }
         try {
-            const response =  fetch("http://localhost:8000/user-register", {
+            fetch("http://192.168.1.6:8000/user-register", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -36,8 +36,6 @@ export const Register: React.FC = () => {
                 body: JSON.stringify(data)
             }).then(async (res) => {
                 let result = await res.json();
-
-                console.log("ress", result)
 
                 if (result.status === "successfully_registered") {
                     toast.success("Successfully Registered");
@@ -50,7 +48,7 @@ export const Register: React.FC = () => {
         } catch (error) {
             console.error("Error:", error);
         }
-    
+
     }
     return (
         <>
@@ -65,7 +63,7 @@ export const Register: React.FC = () => {
                         maxWidth: '100%',
                         margin: "0px"
                     }}>
-                        <img src={loginPic} />
+                        <img src={loginPic} alt="img" />
                     </Box>
                 </Grid>
 
@@ -88,9 +86,9 @@ export const Register: React.FC = () => {
                             width: '70%',
                             display: 'block',
                             marginBottom: '10px'
-                            }}
+                        }}
                             fullWidth
-                            onChange={(e:any)=> setName(e.target.value)}
+                            onChange={(e: any) => setName(e.target.value)}
                             required
                             label='Your Name' />
 
@@ -98,7 +96,7 @@ export const Register: React.FC = () => {
                             width: '70%',
                             display: 'block',
                             marginBottom: '10px'
-                            }}
+                        }}
                             fullWidth
                             required
                             onChange={(e: any) => setMail(e.target.value)}
@@ -110,7 +108,7 @@ export const Register: React.FC = () => {
                             width: '70%',
                             display: 'block',
                             marginBottom: '10px'
-                            }}
+                        }}
                             fullWidth
                             onChange={(e: any) => setPassword(e.target.value)}
                             value={password}

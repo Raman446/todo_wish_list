@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TextField, Box, Button, Typography, Grid, Stack } from "@mui/material";
+import { TextField, Box, Button, Typography, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import loginPic from '../images/4609476.jpg'
 import { toast } from "react-toastify";
@@ -24,7 +24,7 @@ export const Login: React.FC = () => {
             password: password
         }
         try {
-            const response = fetch("http://localhost:8000/user-login", {
+            fetch("http://192.168.1.6:8000/user-login", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -32,10 +32,6 @@ export const Login: React.FC = () => {
                 body: JSON.stringify(data)
             }).then(async (res) => {
                 let result = await res.json();
-
-                console.log("ress", result.data)
-
-                // toast.error("qwertyuio")
                 if (result.status === "not_registered_email") {
                     toast.error("email is not registered");
                 } else if (result.status === "invalid_password") {
@@ -66,7 +62,7 @@ export const Login: React.FC = () => {
                         maxWidth: '100%',
                         margin: "0px"
                     }}>
-                        <img src={loginPic} />
+                        <img src={loginPic} alt="img" />
                     </Box>
                 </Grid>
 

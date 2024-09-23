@@ -4,7 +4,6 @@ import Tasks from "../Models/Tasks";
 import Users from "../Models/Users";
 
 export const addTodo = async (req: Request, res: Response) => {
-    console.log("yyyy", req.body)
     try {
         const createTodo = await new Tasks({
             userID: req.body.user_id,
@@ -29,7 +28,6 @@ export const addTodo = async (req: Request, res: Response) => {
 export const getAllTodo = async (req: Request, res: Response) => {
     try {
         const getAllTodoTask = await Tasks.find();
-        // console.log("xxxxx", getAllNameUser)
         if (getAllTodoTask.length === 0) {
             return (
                 res.send({
@@ -52,10 +50,8 @@ export const getAllTodo = async (req: Request, res: Response) => {
 }
 
 export const getTodoSelected = async (req: Request, res: Response) => {
-    console.log("iiiii", req.body)
     try {
         const getTodoTask = await Tasks.find({ userID: req.body.userid });
-        console.log("ggggggg", getTodoTask)
         if (getTodoTask.length === 0) {
             return (
                 res.send({
@@ -81,10 +77,8 @@ export const getTodoSelected = async (req: Request, res: Response) => {
 
 
 export const getTodo = async (req: Request, res: Response) => {
-    // console.log("iiiii", req.body)
     try {
         const getTodoTask = await Tasks.find({ userID: req.body.userid });
-        // console.log("tttt", getTodoTask)
         if (getTodoTask.length === 0) {
             return (
                 res.send({
@@ -99,7 +93,6 @@ export const getTodo = async (req: Request, res: Response) => {
                 })
             )
         }
-
     } catch (err) {
         res.send({
             error: err,
@@ -108,7 +101,6 @@ export const getTodo = async (req: Request, res: Response) => {
 }
 
 export const deleteTodo = async (req: Request, res: Response) => {
-    console.log("rrrrrr", req.body)
     try {
         const deleteTask = await Tasks.deleteOne({ _id: req.body.taskID });
         if (deleteTask) {
@@ -129,7 +121,6 @@ export const deleteTodo = async (req: Request, res: Response) => {
 export const updateAssignTodo = async (req: Request, res: Response) => {
     try {
         const updateTodo = await Tasks.findOneAndUpdate({ _id: req.body.taskID }, { $set: { userID: req.body.userid } });
-        console.log("nnnnn", updateTodo)
         if (updateTodo) {
             return (
                 res.send({
@@ -172,10 +163,8 @@ export const updateTodo = async (req: Request, res: Response) => {
 
 
 export const updateStatusTodo = async (req: Request, res: Response) => {
-    console.log("bbbbb", req.body)
     try {
         const updateTodo = await Tasks.findOneAndUpdate({ _id: req.body.task_id }, { $set: { status: req.body.destination } });
-        console.log("nnnnn", updateTodo)
         if (updateTodo) {
             return (
                 res.send({
