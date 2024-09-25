@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { Typography, Box, AppBar, Toolbar, Button, Grid, Dialog, DialogContent, DialogTitle, FormControl, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, DialogActions } from "@mui/material";
+import { Typography, Box, AppBar, Toolbar, Button, Grid, Dialog, DialogContent, DialogTitle, FormControl, TextField, InputLabel, Select, MenuItem, SelectChangeEvent, DialogActions, IconButton, Drawer, List, ListItem, ListItemText } from "@mui/material";
 import { SubmitHandler, useForm } from 'react-hook-form'
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -17,11 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { FloatingWhatsApp } from 'react-floating-whatsapp';
-
-
-
-
-
+import MenuIcon from '@mui/icons-material/Menu';
 
 interface taskData {
     taskHeading: string,
@@ -33,9 +29,6 @@ interface taskData {
 interface taskAssignData {
     UserId: string
 }
-
-
-
 
 
 
@@ -63,14 +56,6 @@ export const Home: React.FC = () => {
         userID: "",
         _id: ""
     }]);
-
-    // const [edittaskList, setEditTaskList] = useState({
-    //     todoHeading: "",
-    //     todoDetail: "",
-    //     endingdate: "",
-    //     status: "",
-    //     _id: ""
-    // });
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -101,7 +86,7 @@ export const Home: React.FC = () => {
 
     const handleAddTodo: SubmitHandler<taskData> = (data) => {
         let dataa = {
-            user_id: data.UserId, //now here value come from form
+            user_id: data.UserId,
             heading: data.taskHeading,
             detail: data.taskDetail,
             date: data.endingDate,
@@ -375,22 +360,10 @@ export const Home: React.FC = () => {
 
 
 
-
-
-
-
-
-
-
-
-
     const handleClose1 = () => {
         setOpen1(false);
     };
 
-    // const handleOpen1 = () => {
-    //     setOpen1(true);
-    // };
 
 
     const [assgintaskId, setAssgintaskId] = useState('');
@@ -444,124 +417,125 @@ export const Home: React.FC = () => {
     };
 
 
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const toggleDrawer = (open: any) => (event: any) => {
+        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+            return;
+        }
+        setDrawerOpen(open);
+    };
+
+    const drawerContent = (
+        <List>
+            <ListItem>
+                <ListItemText primary={`Hi, ${user.userName}`} />
+            </ListItem>
+            {user.type !== 'user' && (
+                <ListItem button onClick={handleClickOpen}>
+                    <PlaylistAddIcon sx={{ marginRight: '5px' }} />
+                    <ListItemText primary="Add TODO" />
+                </ListItem>
+            )}
+            <ListItem button onClick={handleLogout}>
+                <LogoutIcon sx={{ marginRight: '5px' }} />
+                <ListItemText primary="LogOut" />
+            </ListItem>
+        </List>
+    );
+
     return (
         <>
-            <FloatingWhatsApp
-                phoneNumber='+91 9914176950'
-                accountName="Ramandeep Singh"
-                avatar="https://via.placeholder.com/150"
-                darkMode={false}
-                chatMessage='Hello, how can we help you?'
-                placeholder="Type a message..."
-                statusMessage="Replies within a few minutes"
-                allowClickAway={true}
-                allowEsc={true}
-                styles={{
-                    zIndex: 1000,
-                }}
+            <div>
+                {user.type === "user" && (
+                    <FloatingWhatsApp
+                        phoneNumber='+91 9914176950'
+                        accountName="Ramandeep Singh"
+                        avatar="https://via.placeholder.com/150"
+                        darkMode={false}
+                        chatMessage='Hello, how can we help you?'
+                        placeholder="Type a message..."
+                        statusMessage="Replies within a few minutes"
+                        allowClickAway={true}
+                        allowEsc={true}
+                        styles={{
+                            zIndex: 1000,
+                        }}
+                    />
+                )}
 
-            />
-
-
-
-            {user.type === "user" ? <Box sx={{ flexGrow: 1 }}>
-
-                <AppBar position="fixed">
-                    <Toolbar>
-                        <Typography
-                            variant="h5"
-                            noWrap
-                            component="div"
-                            sx={{
-                                flexGrow: 1,
-                                display: { xs: 'none', sm: 'block' },
-                                fontWeight: 'bolder'
-                            }}
-                        >
-                            TODO Wish List
-                        </Typography>
-                        <Typography
-                            variant="h6"
-                            noWrap
-                            component="div"
-                            sx={{
-                                flexGrow: 1,
-                                display: { xs: 'none', sm: 'block' },
-                                textAlign: 'right',
-                                marginRight: '15px'
-                            }}
-                        >
-                            Hi, {user.userName}
-                        </Typography>
-
-                        <Button variant="contained" color="error" onClick={handleLogout} sx={{
-                            marginLeft: '15px',
-                            fontWeight: 'bold',
-                            cursor: 'pointer'
-                        }}><LogoutIcon sx={{
-                            margin: '5px'
-                        }} />
-                            LogOut
-                        </Button>
-                    </Toolbar>
-                </AppBar>
-            </Box>
-                :
-
-                <>
-                    <Box sx={{ flexGrow: 1 }}>
-
-                        <AppBar position="fixed">
-                            <Toolbar>
-                                <Typography
-                                    variant="h5"
-                                    noWrap
-                                    component="div"
-                                    sx={{
-                                        flexGrow: 1,
-                                        display: { xs: 'none', sm: 'block' },
-                                        fontWeight: 'bolder'
-                                    }}
-                                >
-                                    TODO Wish List
-                                </Typography>
+                <Box sx={{ flexGrow: 1 }}>
+                    <AppBar position="fixed" sx={{ backgroundColor: '#066166 !important' }}>
+                        <Toolbar>
+                            <Typography
+                                variant="h5"
+                                noWrap
+                                component="div"
+                                sx={{
+                                    flexGrow: 1,
+                                    fontWeight: 'bolder',
+                                    display: { xs: 'block', sm: 'block' },
+                                }}
+                            >
+                                TODO Wish List
+                            </Typography>
+                            <Box sx={{ display: { xs: 'none', sm: 'flex' }, flexGrow: 1, justifyContent: 'flex-end' }}>
                                 <Typography
                                     variant="h6"
                                     noWrap
                                     component="div"
                                     sx={{
-                                        flexGrow: 1,
-                                        display: { xs: 'none', sm: 'block' },
                                         textAlign: 'right',
-                                        marginRight: '15px'
+                                        marginRight: '15px',
                                     }}
                                 >
                                     Hi, {user.userName}
                                 </Typography>
-                                <Button variant="contained" color="success" onClick={handleClickOpen} sx={{
-                                    marginLeft: '15px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer'
-                                }}><PlaylistAddIcon sx={{
-                                    margin: '5px'
-                                }} />
-                                    Add TODO
-                                </Button>
-
-                                <Button variant="contained" color="error" onClick={handleLogout} sx={{
-                                    marginLeft: '15px',
-                                    fontWeight: 'bold',
-                                    cursor: 'pointer'
-                                }}><LogoutIcon sx={{
-                                    margin: '5px'
-                                }} />
+                                {user.type !== 'user' && (
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        onClick={handleClickOpen}
+                                        sx={{
+                                            marginLeft: '15px',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        <PlaylistAddIcon sx={{ marginRight: '5px' }} />
+                                        Add TODO
+                                    </Button>
+                                )}
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    onClick={handleLogout}
+                                    sx={{
+                                        marginLeft: '15px',
+                                        fontWeight: 'bold',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <LogoutIcon sx={{ marginRight: '5px' }} />
                                     LogOut
                                 </Button>
-                            </Toolbar>
-                        </AppBar>
-                    </Box>
-                </>
-            }
+                            </Box>
+                            <IconButton
+                                edge="end"
+                                color="inherit"
+                                aria-label="menu"
+                                sx={{ display: { xs: 'block', sm: 'none' } }}
+                                onClick={toggleDrawer(true)}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                        </Toolbar>
+                    </AppBar>
+                    <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+                        {drawerContent}
+                    </Drawer>
+                </Box>
+            </div>
 
 
 
@@ -786,7 +760,8 @@ export const Home: React.FC = () => {
                                                                 ref={provided.innerRef}
                                                                 sx={{
                                                                     border: '1px solid rgb(213, 213, 213)',
-                                                                    maxWidth: '90%',
+                                                                    maxWidth: '99%',
+                                                                    margin: "auto",
                                                                     borderRadius: '10px',
                                                                     marginBottom: "12px",
                                                                     boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
@@ -803,50 +778,76 @@ export const Home: React.FC = () => {
                                                                 <Typography variant="body1" sx={{
                                                                     marginLeft: '10px',
                                                                 }}>Completing Date of Todo: {task.endingdate}</Typography>
-                                                                <Typography variant="body1" sx={{
-                                                                    border: '1px solid rgb(213, 213, 213)',
-                                                                    margin: '10px',
-                                                                    borderRadius: '10px',
-                                                                    display: "inline-block",
-                                                                    padding: '4px 6px',
-                                                                    backgroundColor: 'rgb(239, 63, 50)',
-                                                                    textAlign: 'right',
-                                                                    cursor: "pointer"
-                                                                }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                                                <Typography variant="body1" sx={{
-                                                                    border: '1px solid rgb(213, 213, 213)',
-                                                                    margin: '10px',
-                                                                    borderRadius: '10px',
-                                                                    display: "inline-block",
-                                                                    padding: '4px 6px',
-                                                                    backgroundColor: 'rgb(156, 175, 150)',
-                                                                    textAlign: 'right',
-                                                                    cursor: "pointer"
-                                                                }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                                                <Typography variant="body1" sx={{
-                                                                    border: '1px solid rgb(213, 213, 213)',
-                                                                    margin: '10px 10px 10px 0px',
-                                                                    borderRadius: '10px',
-                                                                    display: "inline-block",
-                                                                    padding: '4px 6px',
-                                                                    backgroundColor: 'rgb(96, 210, 248)',
-                                                                    float: "right",
-                                                                    textAlign: 'right',
-                                                                    cursor: "pointer",
-                                                                    color: 'rgb(255,255,255)'
-                                                                }} onClick={() => handleAssign(task._id)} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />
-                                                                    {userList.map((user) => {
-                                                                        if (user._id === task.userID) {
-                                                                            return (
-                                                                                <>
-                                                                                    {user.userName}
-                                                                                </>
-                                                                            )
-
-                                                                        }
-                                                                        return null;
-                                                                    })}
-                                                                </Typography>
+                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                    <Typography
+                                                                        variant="body1"
+                                                                        sx={{
+                                                                            margin: '10px',
+                                                                            borderRadius: '10px',
+                                                                            display: 'flex',
+                                                                            justifyContent: 'center',
+                                                                            alignItems: 'center',
+                                                                            backgroundColor: 'rgb(239, 63, 50)',
+                                                                            cursor: 'pointer',
+                                                                            height: '40px',
+                                                                            width: '40px',
+                                                                            textAlign: 'center',
+                                                                        }}
+                                                                        onClick={() => handleDeletetask(task._id)}
+                                                                    >
+                                                                        <DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="body1"
+                                                                        sx={{
+                                                                            border: '1px solid rgb(213, 213, 213)',
+                                                                            margin: '10px',
+                                                                            borderRadius: '10px',
+                                                                            display: 'flex',
+                                                                            justifyContent: 'center',
+                                                                            alignItems: 'center',
+                                                                            // padding: '4px 6px',
+                                                                            backgroundColor: '#066166',
+                                                                            cursor: 'pointer',
+                                                                            height: '40px',
+                                                                            width: '40px',
+                                                                            textAlign: 'center',
+                                                                        }}
+                                                                        onClick={() => handleEdittask(task)}
+                                                                    >
+                                                                        <EditIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="body1"
+                                                                        sx={{
+                                                                            border: '1px solid rgb(213, 213, 213)',
+                                                                            margin: '10px 10px 10px 0px',
+                                                                            borderRadius: '10px',
+                                                                            height: '40px',
+                                                                            display: 'flex',
+                                                                            justifyContent: 'center',
+                                                                            alignItems: 'center',
+                                                                            padding: '4px 6px',
+                                                                            backgroundColor: 'rgb(32, 67, 55)',
+                                                                            cursor: 'pointer',
+                                                                            color: 'rgb(255, 255, 255)',
+                                                                            marginLeft: "auto"
+                                                                        }}
+                                                                        onClick={() => handleAssign(task._id)}
+                                                                    >
+                                                                        <AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                        {userList.map((user) => {
+                                                                            if (user._id === task.userID) {
+                                                                                return (
+                                                                                    <React.Fragment key={user._id}>
+                                                                                        {user.userName}
+                                                                                    </React.Fragment>
+                                                                                );
+                                                                            }
+                                                                            return null;
+                                                                        })}
+                                                                    </Typography>
+                                                                </div>
                                                             </Box>
                                                         )}
 
@@ -883,7 +884,8 @@ export const Home: React.FC = () => {
                                                             ref={provided.innerRef}
                                                             sx={{
                                                                 border: '1px solid rgb(213, 213, 213)',
-                                                                maxWidth: '90%',
+                                                                maxWidth: '99%',
+                                                                margin: "auto",
                                                                 borderRadius: '10px',
                                                                 marginBottom: "12px",
                                                                 boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
@@ -900,50 +902,76 @@ export const Home: React.FC = () => {
                                                             <Typography variant="body1" sx={{
                                                                 marginLeft: '10px',
                                                             }}>Completing Date of Todo: {task.endingdate}</Typography>
-                                                            <Typography variant="body1" sx={{
-                                                                border: '1px solid rgb(213, 213, 213)',
-                                                                margin: '10px',
-                                                                borderRadius: '10px',
-                                                                display: "inline-block",
-                                                                padding: '4px 6px',
-                                                                backgroundColor: 'rgb(239, 63, 50)',
-                                                                textAlign: 'right',
-                                                                cursor: "pointer"
-                                                            }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                                            <Typography variant="body1" sx={{
-                                                                border: '1px solid rgb(213, 213, 213)',
-                                                                margin: '10px',
-                                                                borderRadius: '10px',
-                                                                display: "inline-block",
-                                                                padding: '4px 6px',
-                                                                backgroundColor: 'rgb(156, 175, 150)',
-                                                                textAlign: 'right',
-                                                                cursor: "pointer"
-                                                            }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                                            <Typography variant="body1" sx={{
-                                                                border: '1px solid rgb(213, 213, 213)',
-                                                                margin: '10px 10px 10px 0px',
-                                                                borderRadius: '10px',
-                                                                display: "inline-block",
-                                                                padding: '4px 6px',
-                                                                backgroundColor: 'rgb(96, 210, 248)',
-                                                                float: "right",
-                                                                textAlign: 'right',
-                                                                cursor: "pointer",
-                                                                color: 'rgb(255,255,255)'
-                                                            }} onClick={() => handleAssign(task._id)} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />
-                                                                {userList.map((user) => {
-                                                                    if (user._id === task.userID) {
-                                                                        return (
-                                                                            <>
-                                                                                {user.userName}
-                                                                            </>
-                                                                        )
-
-                                                                    }
-                                                                    return null;
-                                                                })}
-                                                            </Typography>
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                <Typography
+                                                                    variant="body1"
+                                                                    sx={{
+                                                                        margin: '10px',
+                                                                        borderRadius: '10px',
+                                                                        display: 'flex',
+                                                                        justifyContent: 'center',
+                                                                        alignItems: 'center',
+                                                                        backgroundColor: 'rgb(239, 63, 50)',
+                                                                        cursor: 'pointer',
+                                                                        height: '40px',
+                                                                        width: '40px',
+                                                                        textAlign: 'center',
+                                                                    }}
+                                                                    onClick={() => handleDeletetask(task._id)}
+                                                                >
+                                                                    <DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                </Typography>
+                                                                <Typography
+                                                                    variant="body1"
+                                                                    sx={{
+                                                                        border: '1px solid rgb(213, 213, 213)',
+                                                                        margin: '10px',
+                                                                        borderRadius: '10px',
+                                                                        display: 'flex',
+                                                                        justifyContent: 'center',
+                                                                        alignItems: 'center',
+                                                                        // padding: '4px 6px',
+                                                                        backgroundColor: '#066166',
+                                                                        cursor: 'pointer',
+                                                                        height: '40px',
+                                                                        width: '40px',
+                                                                        textAlign: 'center',
+                                                                    }}
+                                                                    onClick={() => handleEdittask(task)}
+                                                                >
+                                                                    <EditIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                </Typography>
+                                                                <Typography
+                                                                    variant="body1"
+                                                                    sx={{
+                                                                        border: '1px solid rgb(213, 213, 213)',
+                                                                        margin: '10px 10px 10px 0px',
+                                                                        borderRadius: '10px',
+                                                                        height: '40px',
+                                                                        display: 'flex',
+                                                                        justifyContent: 'center',
+                                                                        alignItems: 'center',
+                                                                        padding: '4px 6px',
+                                                                        backgroundColor: 'rgb(32, 67, 55)',
+                                                                        cursor: 'pointer',
+                                                                        color: 'rgb(255, 255, 255)',
+                                                                        marginLeft: "auto"
+                                                                    }}
+                                                                    onClick={() => handleAssign(task._id)}
+                                                                >
+                                                                    <AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                    {userList.map((user) => {
+                                                                        if (user._id === task.userID) {
+                                                                            return (
+                                                                                <React.Fragment key={user._id}>
+                                                                                    {user.userName}
+                                                                                </React.Fragment>
+                                                                            );
+                                                                        }
+                                                                        return null;
+                                                                    })}
+                                                                </Typography>
+                                                            </div>
                                                         </Box>
                                                     )}
 
@@ -978,7 +1006,8 @@ export const Home: React.FC = () => {
                                                             ref={provided.innerRef}
                                                             sx={{
                                                                 border: '1px solid rgb(213, 213, 213)',
-                                                                maxWidth: '90%',
+                                                                maxWidth: '99%',
+                                                                margin: "auto",
                                                                 borderRadius: '10px',
                                                                 marginBottom: "12px",
                                                                 boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
@@ -995,50 +1024,76 @@ export const Home: React.FC = () => {
                                                             <Typography variant="body1" sx={{
                                                                 marginLeft: '10px',
                                                             }}>Completing Date of Todo: {task.endingdate}</Typography>
-                                                            <Typography variant="body1" sx={{
-                                                                border: '1px solid rgb(213, 213, 213)',
-                                                                margin: '10px',
-                                                                borderRadius: '10px',
-                                                                display: "inline-block",
-                                                                padding: '4px 6px',
-                                                                backgroundColor: 'rgb(239, 63, 50)',
-                                                                textAlign: 'right',
-                                                                cursor: "pointer"
-                                                            }} onClick={() => handleDeletetask(task._id)}><DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                                            <Typography variant="body1" sx={{
-                                                                border: '1px solid rgb(213, 213, 213)',
-                                                                margin: '10px',
-                                                                borderRadius: '10px',
-                                                                display: "inline-block",
-                                                                padding: '4px 6px',
-                                                                backgroundColor: 'rgb(156, 175, 150)',
-                                                                textAlign: 'right',
-                                                                cursor: "pointer"
-                                                            }} onClick={() => handleEdittask(task)}><EditIcon sx={{ color: 'rgb(255, 255, 255)' }} /></Typography>
-                                                            <Typography variant="body1" sx={{
-                                                                border: '1px solid rgb(213, 213, 213)',
-                                                                margin: '10px 10px 10px 0px',
-                                                                borderRadius: '10px',
-                                                                display: "inline-block",
-                                                                padding: '4px 6px',
-                                                                backgroundColor: 'rgb(96, 210, 248)',
-                                                                float: "right",
-                                                                textAlign: 'right',
-                                                                cursor: "pointer",
-                                                                color: 'rgb(255,255,255)'
-                                                            }} onClick={() => handleAssign(task._id)} ><AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)', paddingTop: '4px' }} />
-                                                                {userList.map((user) => {
-                                                                    if (user._id === task.userID) {
-                                                                        return (
-                                                                            <>
-                                                                                {user.userName}
-                                                                            </>
-                                                                        )
-
-                                                                    }
-                                                                    return null;
-                                                                })}
-                                                            </Typography>
+                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                <Typography
+                                                                    variant="body1"
+                                                                    sx={{
+                                                                        margin: '10px',
+                                                                        borderRadius: '10px',
+                                                                        display: 'flex',
+                                                                        justifyContent: 'center',
+                                                                        alignItems: 'center',
+                                                                        backgroundColor: 'rgb(239, 63, 50)',
+                                                                        cursor: 'pointer',
+                                                                        height: '40px',
+                                                                        width: '40px',
+                                                                        textAlign: 'center',
+                                                                    }}
+                                                                    onClick={() => handleDeletetask(task._id)}
+                                                                >
+                                                                    <DeleteIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                </Typography>
+                                                                <Typography
+                                                                    variant="body1"
+                                                                    sx={{
+                                                                        border: '1px solid rgb(213, 213, 213)',
+                                                                        margin: '10px',
+                                                                        borderRadius: '10px',
+                                                                        display: 'flex',
+                                                                        justifyContent: 'center',
+                                                                        alignItems: 'center',
+                                                                        // padding: '4px 6px',
+                                                                        backgroundColor: '#066166',
+                                                                        cursor: 'pointer',
+                                                                        height: '40px',
+                                                                        width: '40px',
+                                                                        textAlign: 'center',
+                                                                    }}
+                                                                    onClick={() => handleEdittask(task)}
+                                                                >
+                                                                    <EditIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                </Typography>
+                                                                <Typography
+                                                                    variant="body1"
+                                                                    sx={{
+                                                                        border: '1px solid rgb(213, 213, 213)',
+                                                                        margin: '10px 10px 10px 0px',
+                                                                        borderRadius: '10px',
+                                                                        height: '40px',
+                                                                        display: 'flex',
+                                                                        justifyContent: 'center',
+                                                                        alignItems: 'center',
+                                                                        padding: '4px 6px',
+                                                                        backgroundColor: 'rgb(32, 67, 55)',
+                                                                        cursor: 'pointer',
+                                                                        color: 'rgb(255, 255, 255)',
+                                                                        marginLeft: "auto"
+                                                                    }}
+                                                                    onClick={() => handleAssign(task._id)}
+                                                                >
+                                                                    <AssignmentIndIcon sx={{ color: 'rgb(255, 255, 255)' }} />
+                                                                    {userList.map((user) => {
+                                                                        if (user._id === task.userID) {
+                                                                            return (
+                                                                                <React.Fragment key={user._id}>
+                                                                                    {user.userName}
+                                                                                </React.Fragment>
+                                                                            );
+                                                                        }
+                                                                        return null;
+                                                                    })}
+                                                                </Typography>
+                                                            </div>
                                                         </Box>
                                                     )}
                                                 </Draggable>

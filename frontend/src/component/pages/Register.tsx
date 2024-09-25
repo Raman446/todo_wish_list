@@ -1,13 +1,59 @@
 import React, { useState } from "react";
-import { Grid, Box, Typography, TextField, Button } from "@mui/material";
-
-import loginPic from '../images/4609476.jpg'
+import { Box, Typography, TextField, Button, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { makeStyles } from "@mui/styles";
 
+
+const useStyles = makeStyles((theme) => ({
+    container: {
+        display: 'flex !important',
+        flexDirection: 'column',
+        alignItems: 'center !important',
+        justifyContent: 'center !important',
+        minHeight: 'calc(100vh - 120px) !important',
+    },
+    Box: {
+        display: "flex !important",
+        flexDirection: "column",
+        alignItems: "center !important",
+        height: "100% !important",
+        width: "100% !important",
+        maxWidth: "410px !important"
+    },
+    WelcomeTypography: {
+        fontSize: "45px !important",
+        fontWeight: "700 !important",
+        lineHeight: "45px !important",
+        fontFamily: "catamaran !important",
+        display: "inline-block !important",
+    },
+    slogoTypography: {
+        fontSize: "20px !important",
+        fontWeight: "400 !important",
+        lineHeight: "32px !important",
+        fontFamily: "catamaran !important",
+        display: "inline-block !important",
+    },
+    loginButton: {
+        mt: 3,
+        width: "100% !important",
+        borderRadius: "12px !important",
+        padding: "16px 0px !important",
+        backgroundColor: "#066166 !important",
+        "&:hover": {
+            backgroundColor: "#044b4a !important"
+        }
+    },
+    navigateTypography: {
+        fontSize: "16px !important",
+        fontFamily: "400 !important",
+        color: "grey !important"
+    }
+}))
 
 export const Register: React.FC = () => {
-
+    const styles = useStyles();
     const [name, setName] = useState('');
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
@@ -52,38 +98,18 @@ export const Register: React.FC = () => {
     }
     return (
         <>
-            <Grid container spacing={0} sx={{
-                textAlign: 'center',
-                // margin: '2px'
-            }}>
-
-
-                <Grid item md={5}>
-                    <Box sx={{
-                        maxWidth: '100%',
-                        margin: "0px"
+            <Container component="main" maxWidth="xs" className={styles.container}>
+                <Box className={styles.Box}>
+                    <Typography className={styles.WelcomeTypography}>Welcome back</Typography>
+                    <Typography className={styles.slogoTypography}>Kindly Register with mentioned Credentials</Typography>
+                    <form onSubmit={registerUser} style={{
+                        width: "100%",
+                        textAlign: "center",
+                        alignItems: "center",
+                        margin: "5px",
                     }}>
-                        <img src={loginPic} alt="img" />
-                    </Box>
-                </Grid>
-
-
-                <Grid item md={7} sx={{
-                    width: '100%',
-                    marginTop: '50px',
-                    textAlign: 'left',
-                    paddingLeft: '6px'
-                }}>
-                    <Typography variant="h4" gutterBottom sx={{
-                        textDecoration: 'underline',
-                        marginBottom: '20px'
-                    }}>Welcome,<br></br> Become a Member for Build your TODO List
-                    </Typography>
-
-                    <form onSubmit={registerUser}>
-
                         <TextField sx={{
-                            width: '70%',
+                            width: '100%',
                             display: 'block',
                             marginBottom: '10px'
                         }}
@@ -93,7 +119,7 @@ export const Register: React.FC = () => {
                             label='Your Name' />
 
                         <TextField sx={{
-                            width: '70%',
+                            width: '100%',
                             display: 'block',
                             marginBottom: '10px'
                         }}
@@ -105,7 +131,7 @@ export const Register: React.FC = () => {
                             label='Your email' />
 
                         <TextField sx={{
-                            width: '70%',
+                            width: '100%',
                             display: 'block',
                             marginBottom: '10px'
                         }}
@@ -116,18 +142,11 @@ export const Register: React.FC = () => {
                             type="password"
                             label='Password' />
 
-                        <Button type="submit" variant="contained" size="large" sx={{
-                            width: '70%',
-                            display: 'block'
-                        }}>Register</Button>
+                        <Button type="submit" variant="contained" size="large" className={styles.loginButton}>Register</Button>
                     </form>
-                    <Typography variant="body2" onClick={gotoLogin} gutterBottom sx={{
-                        textAlign: 'center',
-                        cursor: 'pointer'
-                    }}>Already Member, Login Now</Typography>
-
-                </Grid>
-            </Grid>
+                    <Typography className={styles.navigateTypography} gutterBottom>Already a Member, <span onClick={gotoLogin} style={{ cursor: "pointer" }}>Login Now</span></Typography>
+                </Box>
+            </Container>
         </>
     )
 }

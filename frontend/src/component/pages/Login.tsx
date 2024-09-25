@@ -1,12 +1,62 @@
 import React, { useState } from "react";
-import { TextField, Box, Button, Typography, Grid } from "@mui/material";
+import { TextField, Box, Button, Typography, Container } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import loginPic from '../images/4609476.jpg'
 import { toast } from "react-toastify";
 import { login } from "../store/slices/LoginSlice";
 import { useDispatch } from "react-redux";
+import makeStyles from "@mui/styles/makeStyles";
+
+
+const useStyles = makeStyles({
+    container: {
+        display: 'flex !important',
+        flexDirection: 'column',
+        alignItems: 'center !important',
+        justifyContent: 'center !important',
+        minHeight: 'calc(100vh - 120px) !important',
+    },
+    Box: {
+        display: "flex !important",
+        flexDirection: "column",
+        alignItems: "center !important",
+        height: "100% !important",
+        width: "100% !important",
+        maxWidth: "410px !important"
+    },
+    WelcomeTypography: {
+        fontSize: "45px !important",
+        fontWeight: "700 !important",
+        lineHeight: "45px !important",
+        fontFamily: "catamaran !important",
+        display: "inline-block !important",
+    },
+    slogoTypography: {
+        fontSize: "20px !important",
+        fontWeight: "400 !important",
+        lineHeight: "32px !important",
+        fontFamily: "catamaran !important",
+        display: "inline-block !important",
+    },
+    loginButton: {
+        mt: 3,
+        width: "100% !important",
+        borderRadius: "12px !important",
+        padding: "16px 0px !important",
+        backgroundColor: "#066166 !important",
+        "&:hover": {
+            backgroundColor: "#044b4a !important"
+        }
+    },
+    navigateTypography: {
+        fontSize: "16px !important",
+        fontFamily: "400 !important",
+        color: "grey !important"
+    }
+})
+
 
 export const Login: React.FC = () => {
+    const styles = useStyles();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -39,8 +89,8 @@ export const Login: React.FC = () => {
                 }
                 else if (result.status === "Login_successfully") {
                     dispatch(login(result.data));
-                    toast.success("Login Successfully");
                     navigate(`/todo`);
+                    toast.success("Login Successfully");
                 }
             });
         } catch (error) {
@@ -51,38 +101,18 @@ export const Login: React.FC = () => {
 
     return (
         <>
-            <Grid container spacing={5} sx={{
-                textAlign: 'center',
-                // margin: '2px'
-            }}>
-
-
-                <Grid item component='div' md={5}>
-                    <Box sx={{
-                        maxWidth: '100%',
-                        margin: "0px"
+            <Container component="main" maxWidth="xs" className={styles.container}>
+                <Box className={styles.Box}>
+                    <Typography className={styles.WelcomeTypography}>Welcome back</Typography>
+                    <Typography className={styles.slogoTypography}>Kindly Login with your Credentials</Typography>
+                    <form onSubmit={loginHandler} style={{
+                        width: "100%",
+                        textAlign: "center",
+                        alignItems: "center",
+                        margin: "5px",
                     }}>
-                        <img src={loginPic} alt="img" />
-                    </Box>
-                </Grid>
-
-
-                <Grid item md={7} component='div' sx={{
-                    width: '100%',
-                    marginTop: '50px',
-                    textAlign: 'left',
-                    paddingLeft: '6px'
-                }}>
-                    <Typography variant="h4" gutterBottom sx={{
-                        textDecoration: 'underline',
-                        marginBottom: '20px'
-                    }}>Login for Build your TODO List
-                    </Typography>
-
-                    <form onSubmit={loginHandler}>
-
                         <TextField sx={{
-                            width: '70%',
+                            width: '100%',
                             display: 'block',
                             marginBottom: '10px'
                         }}
@@ -93,7 +123,7 @@ export const Login: React.FC = () => {
                             label='Your email' />
 
                         <TextField sx={{
-                            width: '70%',
+                            width: '100%',
                             display: 'block',
                             marginBottom: '10px'
                         }}
@@ -103,18 +133,19 @@ export const Login: React.FC = () => {
                             type="password"
                             label='Password' />
 
-                        <Button type="submit" variant="contained" size="large" sx={{
-                            width: '70%',
-                            display: 'block'
-                        }}>Login</Button>
-                    </form>
-                    <Typography variant="body2" onClick={gotoRegister} gutterBottom sx={{
-                        textAlign: 'center',
-                        cursor: 'pointer'
-                    }}>Become a Member, Register Now</Typography>
+                        <Button
+                            type="submit"
+                            fullWidth
+                            variant="contained"
 
-                </Grid>
-            </Grid>
+                            className={styles.loginButton}
+                        >
+                            Login
+                        </Button>
+                    </form>
+                    <Typography className={styles.navigateTypography} gutterBottom>Become a Member, <span onClick={gotoRegister} style={{ cursor: "pointer" }}>Register Now</span></Typography>
+                </Box>
+            </Container>
         </>
     )
 }
