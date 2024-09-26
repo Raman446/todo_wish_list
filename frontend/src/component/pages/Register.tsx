@@ -114,6 +114,7 @@ export const Register: React.FC = () => {
                             marginBottom: '10px'
                         }}
                             fullWidth
+                            required
                             onChange={(e: any) => setName(e.target.value)}
                             label='Your Name' />
 
@@ -123,6 +124,7 @@ export const Register: React.FC = () => {
                             marginBottom: '10px'
                         }}
                             fullWidth
+                            required
                             onChange={(e: any) => setMail(e.target.value)}
                             value={mail}
                             type="email"
@@ -134,6 +136,7 @@ export const Register: React.FC = () => {
                             marginBottom: '10px'
                         }}
                             fullWidth
+                            required
                             onChange={(e: any) => setPassword(e.target.value)}
                             value={password}
                             type="password"
