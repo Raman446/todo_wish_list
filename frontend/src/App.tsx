@@ -11,7 +11,7 @@ function App() {
     <div className="App">
       <StylesProvider injectFirst>
         <Routing />
-        <ToastContainer style={{ marginTop: "50px" }} />
+        <ToastContainer className="toast-container" />
       </StylesProvider>
     </div>
   );

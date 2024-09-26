@@ -117,7 +117,6 @@ export const Login: React.FC = () => {
                             marginBottom: '10px'
                         }}
                             fullWidth
-                            required
                             onChange={(e: any) => setEmail(e.target.value)}
                             type="email"
                             label='Your email' />
@@ -128,7 +127,6 @@ export const Login: React.FC = () => {
                             marginBottom: '10px'
                         }}
                             fullWidth
-                            required
                             onChange={(e: any) => setPassword(e.target.value)}
                             type="password"
                             label='Password' />

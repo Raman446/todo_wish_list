@@ -1,0 +1,15 @@
+.toast-container {
+    margin-top: 50px;
+}
+
+/* Styles for small and extra small screens */
+@media (max-width: 600px) {
+    .toast-container {
+        position: fixed !important;
+        top: 85% !important;
+        transform: translateX(-50%);
+        width: 90% !important;
+        margin-left: 20px !important;
+        max-width: 100% !important;
+    }
+}
