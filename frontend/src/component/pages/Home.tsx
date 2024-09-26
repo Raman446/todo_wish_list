@@ -93,7 +93,7 @@ export const Home: React.FC = () => {
             status: "todo"
         }
         try {
-            fetch("http://192.168.1.6:8000/todo/add-todo", {
+            fetch("http://192.168.1.14:8000/todo/add-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -123,7 +123,7 @@ export const Home: React.FC = () => {
             taskID: id,
         }
         try {
-            fetch("http://192.168.1.6:8000/todo/delete-todo", {
+            fetch("http://192.168.1.14:8000/todo/delete-todo", {
                 method: "DELETE", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -167,7 +167,7 @@ export const Home: React.FC = () => {
             task_id: draggableId
         }
         try {
-            fetch("http://192.168.1.6:8000/todo/update-status-todo", {
+            fetch("http://192.168.1.14:8000/todo/update-status-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -206,7 +206,7 @@ export const Home: React.FC = () => {
                 userid: newValue
             }
             try {
-                fetch("http://192.168.1.6:8000/todo/get-todo-selected", {
+                fetch("http://192.168.1.14:8000/todo/get-todo-selected", {
                     method: "POST", // or 'PUT'
                     headers: {
                         "Content-Type": "application/json",
@@ -234,7 +234,7 @@ export const Home: React.FC = () => {
             userid: user._id
         }
         try {
-            fetch("http://192.168.1.6:8000/todo/get-todo", {
+            fetch("http://192.168.1.14:8000/todo/get-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -257,7 +257,7 @@ export const Home: React.FC = () => {
 
     const getAllTodo = () => {
         try {
-            fetch("http://192.168.1.6:8000/todo/get-all-todo", {
+            fetch("http://192.168.1.14:8000/todo/get-all-todo", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -289,7 +289,7 @@ export const Home: React.FC = () => {
 
     const getAlluser = () => {
         try {
-            fetch("http://192.168.1.6:8000/get-all-user", {
+            fetch("http://192.168.1.14:8000/get-all-user", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -331,7 +331,7 @@ export const Home: React.FC = () => {
             taskid: taskIId
         }
         try {
-            fetch("http://192.168.1.6:8000/todo/update-todo", {
+            fetch("http://192.168.1.14:8000/todo/update-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -387,7 +387,7 @@ export const Home: React.FC = () => {
             userid: data.UserId
         }
         try {
-            fetch("http://192.168.1.6:8000/todo/update-assign-todo", {
+            fetch("http://192.168.1.14:8000/todo/update-assign-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -545,87 +545,67 @@ export const Home: React.FC = () => {
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="responsive-dialog-title"
-                maxWidth="sm"
+                maxWidth="xs"
                 fullWidth
-
             >
-                <DialogTitle id="responsive-dialog-title">
-                    Add your TODO
+                <DialogTitle id="responsive-dialog-title" sx={{ textAlign: "center", fontSize: "24px", fontWeight: "bold" }}>
+                    {updateTask ? "Update your TODO" : "Add your TODO"}
                 </DialogTitle>
                 <form onSubmit={updateTask ? handleSubmit(handleUpdateTodo) : handleSubmit(handleAddTodo)}>
                     <DialogContent>
-                        <FormControl sx={{
-                            margin: '10px',
-                            width: "100%"
-                        }}>
+                        <FormControl sx={{ width: "100%" }}>
                             <TextField
-                                required
-                                {...register("taskHeading", {
-                                    required: "Heading is required"
-                                })}
+                                {...register("taskHeading", { required: "Heading is required" })}
                                 fullWidth
                                 type="text"
-                                // value={taskHeading}
-                                label='TODO Heading'
-                                sx={{
-                                    margin: '10px'
-                                }} />
+                                label="TODO Heading"
+                                sx={{ margin: '10px 0 0' }}
+                            />
                             {errors.taskHeading && (
                                 <p style={{ color: "orangered" }}>{errors.taskHeading.message}</p>
                             )}
                             <TextField
-                                required
-                                {...register("taskDetail", {
-                                    required: "Detail is required"
-                                })}
+                                {...register("taskDetail", { required: "Detail is required" })}
+                                fullWidth
                                 type="text"
-                                // value={taskList?.todoDetail || ""}
-                                label='TODO Detail' sx={{
-                                    margin: '10px'
-                                }} />
+                                label="TODO Detail"
+                                sx={{ margin: '10px 0 0' }}
+                            />
                             {errors.taskDetail && (
                                 <p style={{ color: "orangered" }}>{errors.taskDetail.message}</p>
                             )}
                             <TextField
-                                required
-                                {...register("endingDate", {
-                                    required: "date is required",
-                                    validate: validateDate
-                                })}
+                                {...register("endingDate", { required: "Date is required", validate: validateDate })}
+                                fullWidth
                                 type="date"
-                                // value={taskList?.endingdate || ""}
-                                sx={{
-                                    margin: '10px'
-                                }}
+                                sx={{ margin: '10px 0 0' }}
                             />
                             {errors.endingDate && (
                                 <p style={{ color: "orangered" }}>{errors.endingDate.message}</p>
                             )}
-                            <>
-                                <label id="dropdown-label">Assign to user</label>
-                                <select
-                                    // value={taskList?._id || ""}
-                                    {...register("UserId", {
-                                        required: "assign to someone is requirded"
-                                    })}
-                                    style={{ margin: '10px', height: "50px" }}
+                            <FormControl fullWidth sx={{ margin: '10px 0 0' }}>
+                                <InputLabel id="dropdown-label">Assign to user</InputLabel>
+                                <Select
+                                    labelId="dropdown-label"
+                                    {...register("UserId", { required: "Assigning to someone is required" })}
+                                    label="Assign to user"
                                 >
                                     {userList.map((option) => (
-                                        <option key={option._id} value={option._id}>
+                                        <MenuItem key={option._id} value={option._id}>
                                             {option.userName}
-                                        </option>
+                                        </MenuItem>
                                     ))}
-                                </select>
-                            </>
+                                </Select>
+                                {errors.UserId && (
+                                    <p style={{ color: "red" }}>{errors.UserId.message}</p>
+                                )}
+                            </FormControl>
                         </FormControl>
                     </DialogContent>
                     <DialogActions>
-                        {updateTask ? <Button type="submit" autoFocus color="success">
-                            UPDATE
-                        </Button> : <Button type="submit" autoFocus color="success">
-                            Add
-                        </Button>}
-
+                        <Button type="submit" autoFocus color="success">
+                            {updateTask ? "UPDATE" : "ADD"}
+                        </Button>
                         <Button onClick={handleClose} autoFocus color="error">
                             Close
                         </Button>
@@ -645,31 +625,34 @@ export const Home: React.FC = () => {
                 open={open1}
                 onClose={handleClose1}
                 aria-labelledby="responsive-dialog-title"
+                maxWidth="xs"
+                fullWidth
             >
-                <DialogTitle id="responsive-dialog-title">
+                <DialogTitle id="responsive-dialog-title" sx={{ textAlign: "center", fontSize: "24px", fontWeight: "bold" }}>
                     Assign the task to New user
                 </DialogTitle>
                 <form onSubmit={handleSubmit1(handleUpdateAssign)}>
                     <DialogContent>
-                        <FormControl sx={{
-                            margin: '10px'
+                        <FormControl fullWidth sx={{
+                            width: "100% "
                         }}>
-                            <>
-                                <label id="dropdown-label">Assign to user</label>
-                                <select
-                                    // value={taskList?._id || ""}
-                                    {...register1("UserId", {
-                                        required: "assign to someone is requirded"
-                                    })}
-                                    style={{ margin: '10px', height: "50px" }}
-                                >
-                                    {userList.map((option) => (
-                                        <option key={option._id} value={option._id}>
-                                            {option.userName}
-                                        </option>
-                                    ))}
-                                </select>
-                            </>
+                            <InputLabel id="dropdown-label">Assign to user</InputLabel>
+                            <Select
+                                labelId="dropdown-label"
+                                {...register1("UserId", {
+                                    required: "Assigning to someone is required"
+                                })}
+                                label="Assign to user"
+                            >
+                                {userList.map((option) => (
+                                    <MenuItem key={option._id} value={option._id}>
+                                        {option.userName}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            {errors.UserId && (
+                                <p style={{ color: "red" }}>{errors.UserId.message}</p>
+                            )}
                         </FormControl>
                     </DialogContent>
                     <DialogActions>
@@ -696,31 +679,33 @@ export const Home: React.FC = () => {
                         }}>
                             TODO wish list....
                         </Typography>
-                        <InputLabel id="dropdown-label">Filter the To-Do according to users</InputLabel>
-                        <Select
-                            labelId="dropdown-label"
-                            value={selectedValue}
-                            onChange={handleChange}
-                            label="Select an Option"
-                            sx={{
-                                width: {
-                                    xs: "90%",
-                                    sm: "75%",
-                                    md: "50%",
-                                    lg: "30%",
-                                    xl: "20%",
-                                }
-                            }}
-                        >
-                            <MenuItem key="all" value="all">
-                                All
-                            </MenuItem>
-                            {userList.map((option) => (
-                                <MenuItem key={option._id} value={option._id}>
-                                    {option.userName}
+                        <FormControl sx={{ margin: '10px', width: '100%' }}>
+                            <InputLabel id="dropdown-label">Filter the To-Do according to users</InputLabel>
+                            <Select
+                                labelId="dropdown-label"
+                                value={selectedValue}
+                                onChange={handleChange}
+                                label="Filter the To-Do according to users"
+                                sx={{
+                                    width: {
+                                        xs: "90%",
+                                        sm: "75%",
+                                        md: "50%",
+                                        lg: "30%",
+                                        xl: "20%",
+                                    }
+                                }}
+                            >
+                                <MenuItem key="all" value="all">
+                                    All
                                 </MenuItem>
-                            ))}
-                        </Select>
+                                {userList.map((option) => (
+                                    <MenuItem key={option._id} value={option._id}>
+                                        {option.userName}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </>
                     : <Typography variant="h4" gutterBottom sx={{
                         fontWeight: 'bold'
@@ -1109,7 +1094,7 @@ export const Home: React.FC = () => {
 
                     </Grid>
                 </DragDropContext>
-            </Box>
+            </Box >
 
         </>
     )

@@ -74,7 +74,7 @@ export const Login: React.FC = () => {
             password: password
         }
         try {
-            fetch("http://192.168.1.6:8000/user-login", {
+            fetch("http://192.168.1.14:8000/user-login", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",

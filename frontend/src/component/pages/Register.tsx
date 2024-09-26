@@ -74,7 +74,7 @@ export const Register: React.FC = () => {
             type: "user"
         }
         try {
-            fetch("http://192.168.1.6:8000/user-register", {
+            fetch("http://192.168.1.14:8000/user-register", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
