@@ -5,8 +5,6 @@ import { ToastContainer } from 'react-toastify';
 import { StylesProvider } from '@mui/styles';
 
 function App() {
-
-
   return (
     <div className="App">
       <StylesProvider injectFirst>

@@ -74,7 +74,7 @@ export const Register: React.FC = () => {
             type: "user"
         }
         try {
-            fetch("http://192.168.1.14:8000/user-register", {
+            fetch("http://192.168.1.133:8000/user-register", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -113,8 +113,8 @@ export const Register: React.FC = () => {
                             display: 'block',
                             marginBottom: '10px'
                         }}
-                            fullWidth
                             required
+                            fullWidth
                             onChange={(e: any) => setName(e.target.value)}
                             label='Your Name' />
 
@@ -123,8 +123,8 @@ export const Register: React.FC = () => {
                             display: 'block',
                             marginBottom: '10px'
                         }}
-                            fullWidth
                             required
+                            fullWidth
                             onChange={(e: any) => setMail(e.target.value)}
                             value={mail}
                             type="email"
@@ -135,8 +135,8 @@ export const Register: React.FC = () => {
                             display: 'block',
                             marginBottom: '10px'
                         }}
-                            fullWidth
                             required
+                            fullWidth
                             onChange={(e: any) => setPassword(e.target.value)}
                             value={password}
                             type="password"

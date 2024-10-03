@@ -93,7 +93,7 @@ export const Home: React.FC = () => {
             status: "todo"
         }
         try {
-            fetch("http://192.168.1.14:8000/todo/add-todo", {
+            fetch("http://192.168.1.133:8000/todo/add-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -123,7 +123,7 @@ export const Home: React.FC = () => {
             taskID: id,
         }
         try {
-            fetch("http://192.168.1.14:8000/todo/delete-todo", {
+            fetch("http://192.168.1.133:8000/todo/delete-todo", {
                 method: "DELETE", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -167,7 +167,7 @@ export const Home: React.FC = () => {
             task_id: draggableId
         }
         try {
-            fetch("http://192.168.1.14:8000/todo/update-status-todo", {
+            fetch("http://192.168.1.133:8000/todo/update-status-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -206,7 +206,7 @@ export const Home: React.FC = () => {
                 userid: newValue
             }
             try {
-                fetch("http://192.168.1.14:8000/todo/get-todo-selected", {
+                fetch("http://192.168.1.133:8000/todo/get-todo-selected", {
                     method: "POST", // or 'PUT'
                     headers: {
                         "Content-Type": "application/json",
@@ -234,7 +234,7 @@ export const Home: React.FC = () => {
             userid: user._id
         }
         try {
-            fetch("http://192.168.1.14:8000/todo/get-todo", {
+            fetch("http://192.168.1.133:8000/todo/get-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -257,7 +257,7 @@ export const Home: React.FC = () => {
 
     const getAllTodo = () => {
         try {
-            fetch("http://192.168.1.14:8000/todo/get-all-todo", {
+            fetch("http://192.168.1.133:8000/todo/get-all-todo", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -289,7 +289,7 @@ export const Home: React.FC = () => {
 
     const getAlluser = () => {
         try {
-            fetch("http://192.168.1.14:8000/get-all-user", {
+            fetch("http://192.168.1.133:8000/get-all-user", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -331,7 +331,7 @@ export const Home: React.FC = () => {
             taskid: taskIId
         }
         try {
-            fetch("http://192.168.1.14:8000/todo/update-todo", {
+            fetch("http://192.168.1.133:8000/todo/update-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -387,7 +387,7 @@ export const Home: React.FC = () => {
             userid: data.UserId
         }
         try {
-            fetch("http://192.168.1.14:8000/todo/update-assign-todo", {
+            fetch("http://192.168.1.133:8000/todo/update-assign-todo", {
                 method: "POST", // or 'PUT'
                 headers: {
                     "Content-Type": "application/json",
@@ -527,7 +527,7 @@ export const Home: React.FC = () => {
                                 sx={{ display: { xs: 'block', sm: 'none' } }}
                                 onClick={toggleDrawer(true)}
                             >
-                                <MenuIcon />
+                                <MenuIcon sx={{ fontSize: 30, paddingTop: "8px" }} />
                             </IconButton>
                         </Toolbar>
                     </AppBar>
@@ -724,7 +724,6 @@ export const Home: React.FC = () => {
 
                         <Droppable droppableId='todo' type="group">
                             {(provided) => {
-                                console.log('Droppable rendered with ID: todo');
                                 return (
                                     <Grid
                                         xs={12} sm={12} md={6} lg={6} xl={4}
