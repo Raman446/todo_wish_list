@@ -726,7 +726,7 @@ export const Home: React.FC = () => {
                             {(provided) => {
                                 return (
                                     <Grid
-                                        xs={12} sm={12} md={6} lg={6} xl={4}
+                                        xs={12} sm={12} md={6} lg={4} xl={4}
                                         ref={provided.innerRef}
                                         {...provided.droppableProps}
                                         item >
@@ -849,7 +849,7 @@ export const Home: React.FC = () => {
                         <Droppable droppableId='in_progress' type="group">
                             {(provided) => (
                                 <Grid
-                                    xs={12} sm={12} md={6} lg={6} xl={4}
+                                    xs={12} sm={12} md={6} lg={4} xl={4}
                                     ref={provided.innerRef} {...provided.droppableProps} item sx={{
                                         //  backgroundColor: "rgb(185, 242, 142)"
                                         // border: '1px solid rgb(213, 213, 213)'
@@ -974,7 +974,7 @@ export const Home: React.FC = () => {
                         <Droppable droppableId="completed" type="group">
                             {(provided) => (
                                 <Grid
-                                    xs={12} sm={12} md={6} lg={6} xl={4}
+                                    xs={12} sm={12} md={6} lg={4} xl={4}
                                     ref={provided.innerRef} {...provided.droppableProps} item>
                                     <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>Completed</Typography>
 

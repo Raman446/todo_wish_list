@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Box, Typography, TextField, Button, Container } from "@mui/material";
+import { Box, Typography, TextField, Button, Container, InputAdornment, IconButton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { makeStyles } from "@mui/styles";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -57,12 +58,21 @@ export const Register: React.FC = () => {
     const [name, setName] = useState('');
     const [mail, setMail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
 
     const navigate = useNavigate();
     const gotoLogin = () => {
         navigate(`/`);
     }
+
+    const handleClickShowPassword = () => {
+        setShowPassword((show) => !show);
+    };
+
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
 
 
     const registerUser = (e: any) => {
@@ -139,8 +149,22 @@ export const Register: React.FC = () => {
                             fullWidth
                             onChange={(e: any) => setPassword(e.target.value)}
                             value={password}
-                            type="password"
-                            label='Password' />
+                            type={showPassword ? "text" : "password"}
+                            label='Password'
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={handleClickShowPassword}
+                                            onMouseDown={handleMouseDownPassword}
+                                            edge="end"
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }} />
 
                         <Button type="submit" variant="contained" size="large" className={styles.loginButton}>Register</Button>
                     </form>

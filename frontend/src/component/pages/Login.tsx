@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { TextField, Box, Button, Typography, Container } from "@mui/material";
+import { TextField, Box, Button, Typography, Container, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { login } from "../store/slices/LoginSlice";
 import { useDispatch } from "react-redux";
 import makeStyles from "@mui/styles/makeStyles";
-
 
 const useStyles = makeStyles({
     container: {
@@ -54,18 +54,27 @@ const useStyles = makeStyles({
     }
 })
 
-
 export const Login: React.FC = () => {
     const styles = useStyles();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const handleClickShowPassword = () => {
+        setShowPassword((show) => !show);
+    };
+
+    const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+    };
+
     const gotoRegister = () => {
         navigate(`/register`);
-    }
+    };
 
     const loginHandler = (e: any) => {
         e.preventDefault();
@@ -98,7 +107,6 @@ export const Login: React.FC = () => {
         }
     }
 
-
     return (
         <>
             <Container component="main" maxWidth="xs" className={styles.container}>
@@ -130,14 +138,27 @@ export const Login: React.FC = () => {
                             fullWidth
                             required
                             onChange={(e: any) => setPassword(e.target.value)}
-                            type="password"
-                            label='Password' />
+                            type={showPassword ? "text" : "password"}
+                            label='Password'
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label="toggle password visibility"
+                                            onClick={handleClickShowPassword}
+                                            onMouseDown={handleMouseDownPassword}
+                                            edge="end"
+                                        >
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }} />
 
                         <Button
                             type="submit"
                             fullWidth
                             variant="contained"
-
                             className={styles.loginButton}
                         >
                             Login
